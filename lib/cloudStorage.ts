@@ -85,11 +85,38 @@ export async function loadFromCloud<T = unknown>(module: string): Promise<T | nu
  */
 export async function loadAllFromCloud(): Promise<number> {
   let count = 0;
+  const loadedKeys: string[] = [];
+
   for (const key of CLOUD_KEYS) {
     const data = await loadFromCloud(key);
     if (data !== null) {
       try {
-        localStorage.setItem(key, JSON.stringify(data));
+        // Merge with existing local data to avoid overwriting user's recent additions
+        // (race condition: user may have added items while cloud data was loading)
+        const existingRaw = localStorage.getItem(key);
+        let merged = data;
+
+        if (existingRaw) {
+          try {
+            const existing = JSON.parse(existingRaw);
+            // If both are arrays, merge by id (union — local items take precedence for duplicates)
+            if (Array.isArray(existing) && Array.isArray(data)) {
+              const localIds = new Set(
+                existing.map((item: Record<string, unknown>) => item?.id).filter(Boolean)
+              );
+              const cloudOnly = data.filter(
+                (item: Record<string, unknown>) => !localIds.has(item?.id)
+              );
+              merged = [...existing, ...cloudOnly];
+            }
+            // For non-array values, cloud data replaces local (it's the server source of truth)
+          } catch {
+            // local data parse failed, use cloud data as-is
+          }
+        }
+
+        localStorage.setItem(key, JSON.stringify(merged));
+        loadedKeys.push(key);
         count++;
       } catch {
         // localStorage 写入失败（可能空间不足）
@@ -97,15 +124,15 @@ export async function loadAllFromCloud(): Promise<number> {
       }
     }
   }
-  if (count > 0) {
-    // Dispatch per-key events so useLocalStorage hooks refresh their state
-    // Include source: 'cloud-load' to prevent auto-save loops
-    for (const key of CLOUD_KEYS) {
-      window.dispatchEvent(
-        new CustomEvent('local-storage-sync', { detail: { key, source: 'cloud-load' } })
-      );
-    }
+
+  // Only dispatch events for keys that actually received cloud data
+  // (previously dispatched for ALL 9 keys, causing unnecessary overwrites)
+  for (const key of loadedKeys) {
+    window.dispatchEvent(
+      new CustomEvent('local-storage-sync', { detail: { key, source: 'cloud-load' } })
+    );
   }
+
   return count;
 }
 
