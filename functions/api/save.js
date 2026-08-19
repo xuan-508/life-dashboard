@@ -1,18 +1,6 @@
 // Cloudflare Pages Function: /api/save
 // 接收 POST { module, data, secret }，校验 secret 后写入 KV
 
-const ALLOWED_MODULES = [
-  'ld_accounts',
-  'ld_habits',
-  'ld_habit_logs',
-  'ld_fitness',
-  'ld_fitness_goal',
-  'ld_fitness_height',
-  'ld_schedule',
-  'ld_shopping',
-  'ld_media',
-];
-
 export async function onRequestPost({ request, env }) {
   const corsHeaders = {
     'Access-Control-Allow-Origin': '*',
@@ -37,9 +25,9 @@ export async function onRequestPost({ request, env }) {
       });
     }
 
-    // 校验 module 白名单
-    if (!module || !ALLOWED_MODULES.includes(module)) {
-      return new Response(JSON.stringify({ ok: false, error: 'Invalid module' }), {
+    // 校验 module 非空（不做白名单限制，个人应用有 secret 校验即可）
+    if (!module) {
+      return new Response(JSON.stringify({ ok: false, error: 'Missing module' }), {
         status: 400,
         headers: { 'Content-Type': 'application/json', ...corsHeaders },
       });

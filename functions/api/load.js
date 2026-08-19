@@ -1,18 +1,6 @@
 // Cloudflare Pages Function: /api/load
 // 接收 POST { module, secret } 或 GET ?module=xxx&secret=xxx，校验后从 KV 读取数据
 
-const ALLOWED_MODULES = [
-  'ld_accounts',
-  'ld_habits',
-  'ld_habit_logs',
-  'ld_fitness',
-  'ld_fitness_goal',
-  'ld_fitness_height',
-  'ld_schedule',
-  'ld_shopping',
-  'ld_media',
-];
-
 const corsHeaders = {
   'Access-Control-Allow-Origin': '*',
   'Access-Control-Allow-Methods': 'GET, POST, OPTIONS',
@@ -37,9 +25,9 @@ export async function onRequestPost({ request, env }) {
       });
     }
 
-    // 校验 module 白名单
-    if (!module || !ALLOWED_MODULES.includes(module)) {
-      return new Response(JSON.stringify({ ok: false, error: 'Invalid module' }), {
+    // 校验 module 非空（不做白名单限制，个人应用有 secret 校验即可）
+    if (!module) {
+      return new Response(JSON.stringify({ ok: false, error: 'Missing module' }), {
         status: 400,
         headers: { 'Content-Type': 'application/json', ...corsHeaders },
       });
@@ -75,9 +63,9 @@ export async function onRequestGet({ request, env }) {
       });
     }
 
-    // 校验 module 白名单
-    if (!module || !ALLOWED_MODULES.includes(module)) {
-      return new Response(JSON.stringify({ ok: false, error: 'Invalid module' }), {
+    // 校验 module 非空
+    if (!module) {
+      return new Response(JSON.stringify({ ok: false, error: 'Missing module' }), {
         status: 400,
         headers: { 'Content-Type': 'application/json', ...corsHeaders },
       });
