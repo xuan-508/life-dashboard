@@ -1,0 +1,83 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  html {
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+  }
+  body {
+    background-color: #FAF9F6;
+    color: #1A1A1A;
+    font-feature-settings: "tnum";
+  }
+  * {
+    -webkit-tap-highlight-color: transparent;
+  }
+}
+
+@layer components {
+  .card {
+    @apply bg-surface border border-ink-border rounded-card p-5;
+  }
+  .card-sm {
+    @apply bg-surface border border-ink-border rounded-sm-clean p-4;
+  }
+  .label {
+    @apply font-mono text-label uppercase tracking-wider text-ink-faint;
+  }
+  .stat {
+    @apply font-mono text-stat text-ink;
+  }
+  .stat-sm {
+    @apply font-mono text-stat-sm text-ink;
+  }
+  .btn {
+    @apply px-3 py-1.5 text-sm font-medium rounded-sm-clean transition-colors cursor-pointer;
+  }
+  .btn-accent {
+    @apply bg-accent text-white hover:bg-accent-dark;
+  }
+  .btn-ghost {
+    @apply border border-ink-border text-ink-soft hover:bg-surface-2;
+  }
+  .input {
+    @apply w-full bg-surface-2 border border-ink-border rounded-sm-clean px-3 py-2 text-sm text-ink focus:outline-none focus:border-accent;
+  }
+  .chip {
+    @apply inline-flex items-center gap-1 px-2 py-0.5 text-xs font-mono rounded-sm-clean border;
+  }
+  .chip-active {
+    @apply bg-accent-bg border-accent text-accent-dark;
+  }
+  .chip-idle {
+    @apply bg-surface border-ink-border text-ink-faint;
+  }
+}
+
+/* scrollbar */
+::-webkit-scrollbar {
+  width: 6px;
+  height: 6px;
+}
+::-webkit-scrollbar-track {
+  background: transparent;
+}
+::-webkit-scrollbar-thumb {
+  background: #E5E2DA;
+  border-radius: 3px;
+}
+::-webkit-scrollbar-thumb:hover {
+  background: #999999;
+}
+
+/* hide number input spinners */
+input[type=number]::-webkit-inner-spin-button,
+input[type=number]::-webkit-outer-spin-button {
+  -webkit-appearance: none;
+  margin: 0;
+}
+input[type=number] {
+  -moz-appearance: textfield;
+}
