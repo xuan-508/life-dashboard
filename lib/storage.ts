@@ -1,10 +1,18 @@
 'use client'
 
-import { useState, useEffect, useCallback } from 'react'
+import { useState, useEffect, useCallback, useRef } from 'react'
 
 /**
  * localStorage-backed state hook with SSR safety.
  * Each module gets its own storage key.
+ *
+ * Anti-feedback-loop design:
+ * - A `serializedRef` holds the last JSON string we wrote to localStorage.
+ * - The write effect only writes + dispatches when the serialized value
+ *   actually differs from what we last wrote (prevents self-triggered loops).
+ * - The onSync listener only calls setValue when the incoming JSON differs
+ *   from what we already hold (prevents setValue → write → onSync → setValue
+ *   infinite loops, since JSON.parse always creates a new reference).
  */
 export function useLocalStorage<T>(
   key: string,
@@ -13,11 +21,16 @@ export function useLocalStorage<T>(
   const [value, setValue] = useState<T>(initialValue)
   const [loaded, setLoaded] = useState(false)
 
+  // Track the last serialized value to break feedback loops
+  const serializedRef = useRef<string | null>(null)
+
   useEffect(() => {
     try {
       const raw = localStorage.getItem(key)
       if (raw !== null) {
-        setValue(JSON.parse(raw) as T)
+        const parsed = JSON.parse(raw) as T
+        serializedRef.current = raw
+        setValue(parsed)
       }
     } catch {
       // ignore parse errors
@@ -25,10 +38,15 @@ export function useLocalStorage<T>(
     setLoaded(true)
   }, [key])
 
+  // Write effect: persist value to localStorage + notify other instances
   useEffect(() => {
     if (!loaded) return
     try {
-      localStorage.setItem(key, JSON.stringify(value))
+      const serialized = JSON.stringify(value)
+      // Only write + dispatch if the serialized value actually changed
+      if (serializedRef.current === serialized) return
+      serializedRef.current = serialized
+      localStorage.setItem(key, serialized)
       // notify other hook instances sharing the same key
       window.dispatchEvent(new CustomEvent('local-storage-sync', { detail: { key } }))
     } catch {
@@ -43,9 +61,11 @@ export function useLocalStorage<T>(
       if (ce.detail?.key !== key) return
       try {
         const raw = localStorage.getItem(key)
-        if (raw !== null) {
-          setValue(JSON.parse(raw) as T)
-        }
+        if (raw === null) return
+        // Only update if the incoming value differs from what we already have
+        if (serializedRef.current === raw) return
+        serializedRef.current = raw
+        setValue(JSON.parse(raw) as T)
       } catch {
         // ignore
       }
@@ -54,7 +74,18 @@ export function useLocalStorage<T>(
     function onStorage(e: StorageEvent) {
       if (e.key !== key) return
       try {
-        setValue(e.newValue ? (JSON.parse(e.newValue) as T) : initialValue)
+        const raw = e.newValue
+        if (raw === null) {
+          // Key was deleted; reset to initial value
+          if (serializedRef.current !== null) {
+            serializedRef.current = null
+            setValue(initialValue)
+          }
+          return
+        }
+        if (serializedRef.current === raw) return
+        serializedRef.current = raw
+        setValue(JSON.parse(raw) as T)
       } catch {
         // ignore
       }
