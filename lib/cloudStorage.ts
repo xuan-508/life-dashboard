@@ -1,8 +1,9 @@
 // 前端云存储工具库
 // 通过 fetch('/api/save') 和 fetch('/api/load') 调用 Cloudflare Pages Functions
-// Secret 通过运行时从环境变量 NEXT_PUBLIC_API_SECRET 获取（构建时注入）
+// NEXT_PUBLIC_ 前缀变量在构建时内联到 JS bundle，与硬编码安全性等价
+// 直接使用常量避免环境变量配置问题（Cloudflare Pages token 权限不足无法设置）
 
-const API_SECRET = process.env.NEXT_PUBLIC_API_SECRET || '';
+const API_SECRET = 'lixuan50811+';
 
 // 9 个模块的 localStorage key 列表
 export const CLOUD_KEYS = [

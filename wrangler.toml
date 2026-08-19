@@ -1,4 +1,4 @@
-name = "aged-math-38a8"
+name = "life-dashboard"
 compatibility_date = "2024-08-18"
 
 # KV namespace 绑定
@@ -6,7 +6,7 @@ compatibility_date = "2024-08-18"
 # binding 变量名 DATA_STORE 在 Pages Functions 中通过 env.DATA_STORE 访问
 [[kv_namespaces]]
 binding = "DATA_STORE"
-id = "LIFE_DASHBOARD_DATA"
+id = "16e2149d0d574a44bdbce2f8f1339213"
 
 # Pages Functions 配置
 # functions/ 目录下的文件会自动被 Cloudflare Pages 识别为边缘函数
