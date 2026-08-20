@@ -7,6 +7,7 @@ export interface AccountRecord {
   note: string
   date: string // YYYY-MM-DD
   createdAt: number
+  updatedAt?: number
 }
 
 // ============ 习惯健康 ============
@@ -20,6 +21,7 @@ export interface Habit {
   target: number
   color: string
   createdAt: number
+  updatedAt?: number
 }
 
 export interface HabitLog {
@@ -28,6 +30,7 @@ export interface HabitLog {
   date: string // YYYY-MM-DD
   value: number
   createdAt: number
+  updatedAt?: number
 }
 
 // ============ 减脂健身 ============
@@ -40,6 +43,7 @@ export interface FitnessRecord {
   burn: number | null    // 消耗 kcal
   note: string
   createdAt: number
+  updatedAt?: number
 }
 
 export interface FitnessGoal {
@@ -59,6 +63,7 @@ export interface ScheduleItem {
   priority: SchedulePriority
   note: string
   createdAt: number
+  updatedAt?: number
 }
 
 // ============ 待买清单 ============
@@ -69,6 +74,7 @@ export interface ShoppingItem {
   bought: boolean
   url: string
   createdAt: number
+  updatedAt?: number
 }
 
 // ============ 书影音 ============
@@ -84,4 +90,5 @@ export interface MediaItem {
   note: string
   cover: string
   createdAt: number
+  updatedAt?: number
 }

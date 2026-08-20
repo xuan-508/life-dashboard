@@ -58,7 +58,7 @@ export default function Habits() {
         if (newValue === 0) {
           setLogs((prev) => prev.filter((l) => l.id !== existing.id))
         } else {
-          setLogs((prev) => prev.map((l) => l.id === existing.id ? { ...l, value: newValue } : l))
+          setLogs((prev) => prev.map((l) => l.id === existing.id ? { ...l, value: newValue, updatedAt: Date.now() } : l))
         }
       }
     } else {
@@ -81,7 +81,7 @@ export default function Habits() {
       if (newValue === 0) {
         setLogs((prev) => prev.filter((l) => l.id !== existing.id))
       } else {
-        setLogs((prev) => prev.map((l) => l.id === existing.id ? { ...l, value: newValue } : l))
+        setLogs((prev) => prev.map((l) => l.id === existing.id ? { ...l, value: newValue, updatedAt: Date.now() } : l))
       }
     } else if (newValue > 0) {
       const log: HabitLog = {

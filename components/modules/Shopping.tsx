@@ -48,7 +48,7 @@ export default function Shopping() {
 
   function toggleBought(id: string) {
     setItems((prev) =>
-      prev.map((i) => (i.id === id ? { ...i, bought: !i.bought } : i))
+      prev.map((i) => (i.id === id ? { ...i, bought: !i.bought, updatedAt: Date.now() } : i))
     )
   }
 

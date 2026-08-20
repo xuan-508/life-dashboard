@@ -82,14 +82,14 @@ export default function Media() {
         if (i.id !== id) return i
         const order: MediaStatus[] = ['wishlist', 'reading', 'done']
         const idx = order.indexOf(i.status)
-        return { ...i, status: order[(idx + 1) % order.length] }
+        return { ...i, status: order[(idx + 1) % order.length], updatedAt: Date.now() }
       })
     )
   }
 
   function setRating(id: string, rating: number) {
     setItems((prev) =>
-      prev.map((i) => (i.id === id ? { ...i, rating } : i))
+      prev.map((i) => (i.id === id ? { ...i, rating, updatedAt: Date.now() } : i))
     )
   }
 

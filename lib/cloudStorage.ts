@@ -99,15 +99,38 @@ export async function loadAllFromCloud(): Promise<number> {
         if (existingRaw) {
           try {
             const existing = JSON.parse(existingRaw);
-            // If both are arrays, merge by id (union — local items take precedence for duplicates)
+            // If both are arrays, merge by id with timestamp-based conflict resolution:
+            // for items with the same id, keep the version with the newer updatedAt
+            // (falls back to createdAt if updatedAt is missing)
             if (Array.isArray(existing) && Array.isArray(data)) {
-              const localIds = new Set(
-                existing.map((item: Record<string, unknown>) => item?.id).filter(Boolean)
-              );
-              const cloudOnly = data.filter(
-                (item: Record<string, unknown>) => !localIds.has(item?.id)
-              );
-              merged = [...existing, ...cloudOnly];
+              const getTimestamp = (item: Record<string, unknown>): number =>
+                (item.updatedAt as number) ?? (item.createdAt as number) ?? 0;
+
+              const mergedMap = new Map<string, Record<string, unknown>>();
+              // Start with local items
+              for (const item of existing) {
+                const id = item?.id as string;
+                if (id) mergedMap.set(id, item);
+              }
+              // Merge in cloud items — for shared ids, keep the newer version
+              for (const item of data) {
+                const id = item?.id as string;
+                if (!id) continue;
+                const local = mergedMap.get(id);
+                if (!local) {
+                  // Cloud-only item, add it
+                  mergedMap.set(id, item);
+                } else {
+                  // Conflict: keep the newer version
+                  const localTs = getTimestamp(local);
+                  const cloudTs = getTimestamp(item);
+                  if (cloudTs > localTs) {
+                    mergedMap.set(id, item);
+                  }
+                  // else keep local (already in map)
+                }
+              }
+              merged = Array.from(mergedMap.values());
             }
             // For non-array values, cloud data replaces local (it's the server source of truth)
           } catch {

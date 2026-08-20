@@ -72,7 +72,7 @@ export default function Schedule() {
         if (item.id !== id) return item
         const idx = STATUS_ORDER.indexOf(item.status)
         const next = STATUS_ORDER[(idx + 1) % STATUS_ORDER.length]
-        return { ...item, status: next }
+        return { ...item, status: next, updatedAt: Date.now() }
       })
     )
   }
