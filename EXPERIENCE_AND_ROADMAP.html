@@ -1,0 +1,727 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Life Dashboard — 全栈经验梳理与功能路线图</title>
+<style>
+  :root {
+    --bg: #f7f5f0;
+    --card: #ffffff;
+    --ink: #2c2c2c;
+    --ink-soft: #555;
+    --green: #3B9D4A;
+    --green-soft: #e8f3ea;
+    --green-deep: #2a7a36;
+    --border: #e5e0d8;
+    --amber: #E89B2F;
+    --red: #D9534F;
+    --code-bg: #1e1e2e;
+    --code-text: #e0e0e0;
+  }
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body {
+    font-family: -apple-system, "PingFang SC", "Microsoft YaHei", sans-serif;
+    background: var(--bg);
+    color: var(--ink);
+    line-height: 1.75;
+    padding: 0;
+  }
+  .hero {
+    background: linear-gradient(135deg, #3B9D4A 0%, #2a7a36 100%);
+    color: #fff;
+    padding: 60px 24px 50px;
+    text-align: center;
+  }
+  .hero h1 { font-size: 2.2rem; font-weight: 700; margin-bottom: 12px; letter-spacing: 1px; }
+  .hero .subtitle { font-size: 1.05rem; opacity: 0.92; max-width: 640px; margin: 0 auto; }
+  .hero .meta { margin-top: 20px; font-size: 0.85rem; opacity: 0.8; }
+  .hero .meta span { margin: 0 8px; }
+  .container { max-width: 900px; margin: 0 auto; padding: 40px 24px 80px; }
+  .toc {
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: 14px;
+    padding: 28px 32px;
+    margin-bottom: 48px;
+  }
+  .toc h2 { font-size: 1.15rem; color: var(--green-deep); margin-bottom: 16px; }
+  .toc ol { padding-left: 20px; }
+  .toc li { margin-bottom: 6px; }
+  .toc a { color: var(--ink-soft); text-decoration: none; transition: color .2s; }
+  .toc a:hover { color: var(--green); }
+  section { margin-bottom: 56px; }
+  h2 {
+    font-size: 1.5rem;
+    color: var(--green-deep);
+    border-left: 4px solid var(--green);
+    padding-left: 14px;
+    margin-bottom: 24px;
+    font-weight: 700;
+  }
+  h3 {
+    font-size: 1.15rem;
+    color: var(--ink);
+    margin: 28px 0 14px;
+    font-weight: 600;
+  }
+  h4 {
+    font-size: 1rem;
+    color: var(--green-deep);
+    margin: 20px 0 10px;
+    font-weight: 600;
+  }
+  p { margin-bottom: 14px; color: var(--ink); }
+  ul, ol { padding-left: 22px; margin-bottom: 14px; }
+  li { margin-bottom: 8px; }
+  code {
+    background: var(--green-soft);
+    color: var(--green-deep);
+    padding: 2px 7px;
+    border-radius: 4px;
+    font-family: "Cascadia Code", "Fira Code", Consolas, monospace;
+    font-size: 0.88em;
+  }
+  pre {
+    background: var(--code-bg);
+    color: var(--code-text);
+    padding: 18px 22px;
+    border-radius: 10px;
+    overflow-x: auto;
+    margin: 14px 0 20px;
+    font-size: 0.85rem;
+    line-height: 1.6;
+  }
+  pre code {
+    background: none;
+    color: inherit;
+    padding: 0;
+    font-size: inherit;
+  }
+  .card {
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    padding: 24px 28px;
+    margin-bottom: 18px;
+  }
+  .card-green {
+    background: var(--green-soft);
+    border-color: #c4e0c9;
+  }
+  .card-amber {
+    background: #fef6e8;
+    border-color: #f5dca8;
+  }
+  .card-red {
+    background: #fdeeec;
+    border-color: #f0c5c3;
+  }
+  .timeline {
+    position: relative;
+    padding-left: 28px;
+  }
+  .timeline::before {
+    content: '';
+    position: absolute;
+    left: 8px;
+    top: 8px;
+    bottom: 8px;
+    width: 2px;
+    background: var(--green);
+    opacity: 0.4;
+  }
+  .timeline-item {
+    position: relative;
+    margin-bottom: 22px;
+    padding-bottom: 4px;
+  }
+  .timeline-item::before {
+    content: '';
+    position: absolute;
+    left: -26px;
+    top: 8px;
+    width: 12px;
+    height: 12px;
+    background: var(--green);
+    border-radius: 50%;
+    border: 3px solid var(--bg);
+    box-shadow: 0 0 0 2px var(--green);
+  }
+  .timeline-phase {
+    font-weight: 700;
+    color: var(--green-deep);
+    font-size: 0.95rem;
+    margin-bottom: 4px;
+  }
+  .timeline-desc { font-size: 0.9rem; color: var(--ink-soft); }
+  .badge {
+    display: inline-block;
+    padding: 3px 10px;
+    border-radius: 20px;
+    font-size: 0.75rem;
+    font-weight: 600;
+    margin-right: 6px;
+  }
+  .badge-fe { background: #dbeafe; color: #1e40af; }
+  .badge-be { background: #fef3c7; color: #92400e; }
+  .badge-infra { background: #e0e7ff; color: #3730a3; }
+  .badge-bug { background: #fee2e2; color: #991b1b; }
+  .lesson-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 16px;
+  }
+  @media (max-width: 680px) {
+    .lesson-grid { grid-template-columns: 1fr; }
+    .hero h1 { font-size: 1.6rem; }
+    .container { padding: 30px 16px 60px; }
+  }
+  table {
+    width: 100%;
+    border-collapse: collapse;
+    margin: 14px 0 20px;
+    font-size: 0.9rem;
+  }
+  th, td {
+    text-align: left;
+    padding: 10px 14px;
+    border-bottom: 1px solid var(--border);
+  }
+  th {
+    background: var(--green-soft);
+    color: var(--green-deep);
+    font-weight: 600;
+  }
+  tr:hover { background: #fafaf8; }
+  .feature-card {
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-left: 4px solid var(--green);
+    border-radius: 10px;
+    padding: 22px 26px;
+    margin-bottom: 18px;
+    transition: box-shadow .2s;
+  }
+  .feature-card:hover { box-shadow: 0 4px 16px rgba(0,0,0,0.06); }
+  .feature-card h4 { margin-top: 0; }
+  .feature-card .tags { margin-top: 10px; }
+  .priority-high { border-left-color: var(--red); }
+  .priority-mid { border-left-color: var(--amber); }
+  .stat-row {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 16px;
+    margin: 20px 0;
+  }
+  .stat-box {
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    padding: 18px 24px;
+    text-align: center;
+    flex: 1;
+    min-width: 120px;
+  }
+  .stat-num { font-size: 1.8rem; font-weight: 700; color: var(--green-deep); }
+  .stat-label { font-size: 0.8rem; color: var(--ink-soft); margin-top: 4px; }
+  .footer {
+    text-align: center;
+    padding: 40px 24px;
+    color: var(--ink-soft);
+    font-size: 0.85rem;
+    border-top: 1px solid var(--border);
+    margin-top: 40px;
+  }
+</style>
+</head>
+<body>
+
+<div class="hero">
+  <h1>Life Dashboard</h1>
+  <div class="subtitle">全栈开发经验梳理 &amp; 功能路线图</div>
+  <div class="meta">
+    <span>Next.js 14 + TypeScript</span>·<span>Cloudflare Pages + KV</span>·<span>19 文件 / 3152 行</span>
+  </div>
+</div>
+
+<div class="container">
+
+<!-- ============ 目录 ============ -->
+<div class="toc">
+  <h2>目录</h2>
+  <ol>
+    <li><a href="#part1">第一部分：全栈工作经验梳理</a>
+      <ol>
+        <li><a href="#overview">项目全景与数据统计</a></li>
+        <li><a href="#timeline">开发时间线</a></li>
+        <li><a href="#arch">架构设计与技术选型</a></li>
+        <li><a href="#data">数据持久化双层设计</a></li>
+        <li><a href="#bugs">关键 Bug 与解决方案</a></li>
+        <li><a href="#lessons">经验教训总结</a></li>
+      </ol>
+    </li>
+    <li><a href="#part2">第二部分：新功能路线图</a>
+      <ol>
+        <li><a href="#features">12 项新功能建议</a></li>
+        <li><a href="#priority">优先级矩阵</a></li>
+      </ol>
+    </li>
+  </ol>
+</div>
+
+<!-- ============ 第一部分 ============ -->
+<h2 id="part1">第一部分：全栈工作经验梳理</h2>
+
+<h3 id="overview">一、项目全景</h3>
+
+<div class="stat-row">
+  <div class="stat-box">
+    <div class="stat-num">7</div>
+    <div class="stat-label">功能模块</div>
+  </div>
+  <div class="stat-box">
+    <div class="stat-num">19</div>
+    <div class="stat-label">源文件</div>
+  </div>
+  <div class="stat-box">
+    <div class="stat-num">3152</div>
+    <div class="stat-label">行代码</div>
+  </div>
+  <div class="stat-box">
+    <div class="stat-num">6</div>
+    <div class="stat-label">Git 提交</div>
+  </div>
+  <div class="stat-box">
+    <div class="stat-num">9</div>
+    <div class="stat-label">数据模块</div>
+  </div>
+</div>
+
+<p>从最初的一个 HTML 单页想法，到最终部署在 Cloudflare 边缘节点上的 Next.js 全栈应用，整个项目经历了 <strong>原型 → 重建 → 部署 → 云同步 → 修 Bug → 域名绑定</strong> 六个阶段。最终产品包含 7 大生活管理模块，支持 localStorage 本地持久化 + Cloudflare KV 云端同步双层架构，自定义域名 <code>cclixx.fun</code> 已上线。</p>
+
+<h3 id="timeline">二、开发时间线</h3>
+
+<div class="timeline">
+  <div class="timeline-item">
+    <div class="timeline-phase">阶段 1：HTML 原型</div>
+    <div class="timeline-desc">用单个 HTML 文件快速实现 7 大模块（记账、习惯、健身、日程、购物、书影音、今日概览），验证产品概念和交互逻辑。6 个数据库对应 6 个 localStorage key。</div>
+  </div>
+  <div class="timeline-item">
+    <div class="timeline-phase">阶段 2：Next.js 重建</div>
+    <div class="timeline-desc">迁移到 Next.js 14 App Router + TypeScript + Tailwind CSS。创建了 19 个源文件：7 个模块组件、6 个自定义图表组件（BarChart / DonutChart / HeatGrid / LineChart / MiniBarChart）、4 个 lib 工具库、1 个类型定义文件。采用静态导出模式 <code>output: 'export'</code>。</div>
+  </div>
+  <div class="timeline-item">
+    <div class="timeline-phase">阶段 3：Cloudflare 部署</div>
+    <div class="timeline-desc">配置 <code>wrangler.toml</code>，创建 KV namespace（binding: <code>DATA_STORE</code>），编写两个 Pages Functions（<code>/api/save</code> 和 <code>/api/load</code>）作为无服务器后端。注意：Functions 文件必须是 <code>.js</code> 而非 <code>.ts</code>。</div>
+  </div>
+  <div class="timeline-item">
+    <div class="timeline-phase">阶段 4：云同步实现</div>
+    <div class="timeline-desc">前端 <code>cloudStorage.ts</code> 通过 <code>fetch('/api/save')</code> 和 <code>fetch('/api/load')</code> 调用边缘函数。实现了 <code>useCloudSync</code> hook 管理页面级加载/自动保存生命周期，<code>debouncedSaveToCloud</code> 做防抖保存。</div>
+  </div>
+  <div class="timeline-item">
+    <div class="timeline-phase">阶段 5：Bug 修复（3 轮）</div>
+    <div class="timeline-desc">
+      <strong>第 1 轮</strong>（commit <code>7cf02e9</code>）：云加载覆盖本地新数据 — 按 id 合并数组。<br>
+      <strong>第 2 轮</strong>（commit <code>e28f62a</code>）：useLocalStorage 反馈循环 — 添加 <code>serializedRef</code> 机制。<br>
+      <strong>第 3 轮</strong>（commit <code>251f1d2</code>）：合并策略升级为时间戳比较，取 <code>updatedAt</code> 较新版本。
+    </div>
+  </div>
+  <div class="timeline-item">
+    <div class="timeline-phase">阶段 6：域名绑定</div>
+    <div class="timeline-desc">将默认 <code>*.pages.dev</code> 域名更换为自定义域名 <code>cclixx.fun</code>，通过 Cloudflare Dashboard → Workers &amp; Pages → Custom domains 完成。源代码使用相对路径，无需任何修改。</div>
+  </div>
+</div>
+
+<h3 id="arch">三、架构设计与技术选型</h3>
+
+<h4>3.1 技术栈</h4>
+
+<table>
+  <tr><th>层级</th><th>技术选择</th><th>选择理由</th></tr>
+  <tr><td>前端框架</td><td>Next.js 14.2.5 (App Router)</td><td>静态导出 + React 生态 + 文件路由</td></tr>
+  <tr><td>语言</td><td>TypeScript 5.5.3</td><td>类型安全，7 大模块数据结构清晰定义</td></tr>
+  <tr><td>样式</td><td>Tailwind CSS 3.4.6</td><td>原子化 CSS，零运行时开销，纸墨+清新绿风格</td></tr>
+  <tr><td>部署平台</td><td>Cloudflare Pages</td><td>全球 CDN，免费额度充足，与 KV 无缝集成</td></tr>
+  <tr><td>后端存储</td><td>Cloudflare KV</td><td>边缘 key-value 存储，低延迟，简单 API</td></tr>
+  <tr><td>边缘函数</td><td>Pages Functions (.js)</td><td>无需独立服务器，随 Pages 部署自动上线</td></tr>
+  <tr><td>版本控制</td><td>Git + GitHub (xuan-508/life-dashboard)</td><td>6 个 commit 记录完整开发历程</td></tr>
+</table>
+
+<h4>3.2 文件结构</h4>
+<pre><code>life-dashboard-app/
+├── app/
+│   └── page.tsx              # 主页面，集成7模块 + 云同步
+├── components/
+│   ├── charts/               # 6个自定义图表组件
+│   │   ├── BarChart.tsx
+│   │   ├── DonutChart.tsx
+│   │   ├── HeatGrid.tsx
+│   │   ├── LineChart.tsx
+│   │   └── MiniBarChart.tsx
+│   └── modules/              # 7个功能模块
+│       ├── Accounting.tsx
+│       ├── Fitness.tsx
+│       ├── Habits.tsx
+│       ├── Media.tsx
+│       ├── Overview.tsx
+│       ├── Schedule.tsx
+│       └── Shopping.tsx
+├── functions/api/            # Cloudflare边缘函数
+│   ├── save.js               # POST → KV.put
+│   └── load.js               # POST/GET → KV.get
+├── lib/                      # 核心工具库
+│   ├── cloudStorage.ts       # 云同步逻辑 (206行)
+│   ├── storage.ts            # localStorage hook (175行)
+│   ├── useCloudSync.ts       # 云同步生命周期 (166行)
+│   └── exportImport.ts       # JSON/CSV导出导入
+├── types/index.ts            # 全局类型定义 (95行)
+├── next.config.js            # 静态导出配置
+├── wrangler.toml             # Cloudflare KV配置
+└── package.json</code></pre>
+
+<h4>3.3 关键设计决策</h4>
+
+<div class="card card-green">
+  <p><strong>静态导出而非 SSR：</strong> 使用 <code>output: 'export'</code> 生成纯静态 HTML，部署到 Cloudflare Pages 后由 CDN 直接分发。后端能力通过 Pages Functions（边缘函数）实现，不依赖 Next.js 服务端运行时。这意味着 API 路由不在 <code>app/api/</code> 下，而在 <code>functions/api/</code> 下，由 Cloudflare 运行时接管。</p>
+</div>
+
+<div class="card card-green">
+  <p><strong>API Secret 硬编码而非环境变量：</strong> 原计划使用 <code>NEXT_PUBLIC_API_SECRET</code> 环境变量，但 Cloudflare Pages token 权限不足无法设置环境变量。由于 <code>NEXT_PUBLIC_</code> 前缀变量在构建时内联到 JS bundle 中，与硬编码安全性等价，最终直接在 <code>cloudStorage.ts</code> 中硬编码 <code>API_SECRET</code>，Functions 端通过 <code>env.API_SECRET</code>（Cloudflare 环境变量）校验。</p>
+</div>
+
+<div class="card card-green">
+  <p><strong>6 个自定义图表而非引入图表库：</strong> 没有使用 Chart.js 或 Recharts，而是用纯 SVG 实现了 BarChart、DonutChart、HeatGrid、LineChart、MiniBarChart 五种图表。好处是零依赖、bundle 更小、完全可控的样式，与纸墨+清新绿设计语言一致。</p>
+</div>
+
+<h3 id="data">四、数据持久化双层设计</h3>
+
+<p>这是项目中最核心、也是花最多时间调试的架构。数据存储分为两层：</p>
+
+<h4>4.1 第一层：localStorage 本地持久化</h4>
+
+<div class="card">
+  <p>核心 hook：<code>useLocalStorage&lt;T&gt;(key, initialValue)</code></p>
+  <ul>
+    <li><strong>SSR 安全：</strong> 初始值在客户端 mount 后从 localStorage 读取，避免 hydration 不匹配</li>
+    <li><strong>跨组件同步：</strong> 监听自定义事件 <code>local-storage-sync</code> + 原生 <code>storage</code> 事件（跨标签页）</li>
+    <li><strong>防反馈循环：</strong> <code>serializedRef</code> 跟踪最后写入的 JSON 字符串，写入和同步监听都先比较序列化值</li>
+  </ul>
+  <pre><code>// 防反馈循环核心逻辑
+const serializedRef = useRef&lt;string | null&gt;(null)
+
+// 写入 effect：仅在序列化值变化时写入
+useEffect(() => {
+  const serialized = JSON.stringify(value)
+  if (serializedRef.current === serialized) return  // 防止自触发
+  serializedRef.current = serialized
+  localStorage.setItem(key, serialized)
+  window.dispatchEvent(new CustomEvent('local-storage-sync', ...))
+}, [key, value, loaded])
+
+// 同步监听：仅在传入 JSON 不同时更新
+function onSync(e: Event) {
+  const raw = localStorage.getItem(key)
+  if (serializedRef.current === raw) return  // 防止 setValue→write→onSync 循环
+  serializedRef.current = raw
+  setValue(JSON.parse(raw))
+}</code></pre>
+</div>
+
+<h4>4.2 第二层：Cloudflare KV 云端同步</h4>
+
+<div class="card">
+  <p>核心 hook：<code>useCloudSync()</code> + 工具库 <code>cloudStorage.ts</code></p>
+  <ul>
+    <li><strong>页面级加载：</strong> 应用初始化时 <code>loadAllFromCloud()</code> 加载 9 个 key 的数据</li>
+    <li><strong>自动保存：</strong> 监听 <code>local-storage-sync</code> 事件，对变更的 key 做 <code>debouncedSaveToCloud</code>（2 秒防抖）</li>
+    <li><strong>避免循环：</strong> 跳过 <code>source === 'cloud-load'</code> 的事件，防止 save→load→save 循环</li>
+    <li><strong>时间戳合并：</strong> 云端与本地数据按 id 合并，冲突时取 <code>updatedAt</code>（或 <code>createdAt</code>）较新版本</li>
+  </ul>
+</div>
+
+<h4>4.3 9 个数据模块</h4>
+
+<table>
+  <tr><th>localStorage Key</th><th>模块</th><th>数据类型</th></tr>
+  <tr><td><code>ld_accounts</code></td><td>记账理财</td><td>AccountRecord[]</td></tr>
+  <tr><td><code>ld_habits</code></td><td>习惯定义</td><td>Habit[]</td></tr>
+  <tr><td><code>ld_habit_logs</code></td><td>习惯打卡</td><td>HabitLog[]</td></tr>
+  <tr><td><code>ld_fitness</code></td><td>健身记录</td><td>FitnessRecord[]</td></tr>
+  <tr><td><code>ld_fitness_goal</code></td><td>健身目标</td><td>FitnessGoal</td></tr>
+  <tr><td><code>ld_fitness_height</code></td><td>身高(BMI)</td><td>number</td></tr>
+  <tr><td><code>ld_schedule</code></td><td>日程统筹</td><td>ScheduleItem[]</td></tr>
+  <tr><td><code>ld_shopping</code></td><td>待买清单</td><td>ShoppingItem[]</td></tr>
+  <tr><td><code>ld_media</code></td><td>书影音</td><td>MediaItem[]</td></tr>
+</table>
+
+<h3 id="bugs">五、关键 Bug 与解决方案</h3>
+
+<h4>Bug 1：云加载覆盖本地新数据 <span class="badge badge-bug">竞态条件</span></h4>
+<div class="card card-red">
+  <p><strong>现象：</strong> 用户在页面打开后添加了一条日程，此时云端数据加载完成，直接覆盖 localStorage，用户新添加的日程消失了。</p>
+  <p><strong>根因：</strong> <code>loadAllFromCloud()</code> 原先直接 <code>localStorage.setItem(key, JSON.stringify(data))</code>，用云端数据替换本地数据，没有考虑加载期间用户可能已有新写入。</p>
+  <p><strong>解决（3 轮迭代）：</strong></p>
+  <ol>
+    <li><strong>v1</strong>（commit <code>7cf02e9</code>）：数组按 id 合并 — 云端有但本地没有的加入，本地有但云端没有的保留</li>
+    <li><strong>v2</strong>（commit <code>251f1d2</code>）：时间戳冲突解决 — 对相同 id 的项目，比较 <code>updatedAt</code>（fallback <code>createdAt</code>），取较新版本</li>
+    <li><strong>v3</strong>：事件精准派发 — 只对实际收到云端数据的 key 派发 <code>local-storage-sync</code> 事件（原先对全部 9 个 key 派发，导致不必要的覆盖）</li>
+  </ol>
+  <pre><code>// 时间戳合并核心逻辑
+const getTimestamp = (item) =&gt; item.updatedAt ?? item.createdAt ?? 0
+
+const mergedMap = new Map()
+// 先放入本地数据
+for (const item of existing) mergedMap.set(item.id, item)
+// 再合并云端数据，冲突取较新版本
+for (const item of cloudData) {
+  const local = mergedMap.get(item.id)
+  if (!local) {
+    mergedMap.set(item.id, item)  // 云端独有
+  } else if (getTimestamp(item) &gt; getTimestamp(local)) {
+    mergedMap.set(item.id, item)  // 云端更新
+  }
+}</code></pre>
+</div>
+
+<h4>Bug 2：useLocalStorage 反馈循环 <span class="badge badge-bug">无限循环</span></h4>
+<div class="card card-red">
+  <p><strong>现象：</strong> 云同步加载后，页面状态反复更新，浏览器卡死。</p>
+  <p><strong>根因：</strong> <code>setValue</code> → 写入 effect 派发事件 → <code>onSync</code> 监听器 <code>setValue</code> → 再写入 → 再派发… 因为 <code>JSON.parse</code> 总是创建新引用，<code>===</code> 比较对象不等，导致无限循环。</p>
+  <p><strong>解决</strong>（commit <code>e28f62a</code>）：引入 <code>serializedRef</code>，存储最后写入/读取的 JSON 字符串。写入 effect 和 onSync 监听器都先比较序列化值，相同则跳过。</p>
+</div>
+
+<h4>Bug 3：Pages Functions 文件后缀 <span class="badge badge-infra">部署</span></h4>
+<div class="card card-amber">
+  <p><strong>现象：</strong> 部署后 API 返回 <code>Invalid module</code> 错误。</p>
+  <p><strong>根因：</strong> Cloudflare Pages Functions 只识别 <code>.js</code> 文件，不识别 <code>.ts</code>。</p>
+  <p><strong>解决：</strong> 将 <code>functions/api/save.ts</code> 和 <code>functions/api/load.ts</code> 重命名为 <code>.js</code>，确保语法为 ES Module 格式（<code>export async function onRequestPost</code>）。</p>
+</div>
+
+<h4>Bug 4：save→load→save 循环 <span class="badge badge-bug">逻辑循环</span></h4>
+<div class="card card-red">
+  <p><strong>现象：</strong> 云加载触发 <code>local-storage-sync</code> 事件 → 自动保存 effect 监听到 → 又保存到云端 → 又加载…</p>
+  <p><strong>解决：</strong> 云加载派发事件时带上 <code>source: 'cloud-load'</code> 标记，自动保存 effect 跳过带此标记的事件。</p>
+  <pre><code>// 自动保存 effect
+useEffect(() =&gt; {
+  function onSync(e: Event) {
+    const ce = e as CustomEvent
+    if (ce.detail?.key !== key) return
+    // 跳过云加载事件，避免 save→load→save 循环
+    if (ce.detail?.source === 'cloud-load') return
+    debouncedSaveToCloud(key, data)
+  }
+  window.addEventListener('local-storage-sync', onSync)
+}, [])</code></pre>
+</div>
+
+<h3 id="lessons">六、经验教训总结</h3>
+
+<div class="lesson-grid">
+  <div class="card card-green">
+    <h4>✅ 做得好的</h4>
+    <ul>
+      <li><strong>渐进式开发：</strong> 先 HTML 原型验证概念，再 Next.js 重建，降低了风险</li>
+      <li><strong>类型先行：</strong> <code>types/index.ts</code> 统一定义所有数据结构，所有模块共享</li>
+      <li><strong>零依赖图表：</strong> 用纯 SVG 实现图表，bundle 更小，样式完全可控</li>
+      <li><strong>双层持久化：</strong> localStorage 即时响应 + KV 云端备份，离线可用</li>
+      <li><strong>防抖保存：</strong> 2 秒防抖避免频繁 API 调用</li>
+      <li><strong>相对路径 API：</strong> <code>fetch('/api/save')</code> 使用相对路径，换域名零修改</li>
+    </ul>
+  </div>
+  <div class="card card-amber">
+    <h4>⚠️ 可改进的</h4>
+    <ul>
+      <li><strong>Secret 暴露：</strong> <code>API_SECRET</code> 硬编码在前端 JS 中，任何人可查看。应改用 OAuth 或 Cloudflare Access</li>
+      <li><strong>无用户体系：</strong> 所有数据共用一个 KV namespace，无法区分多用户。应加 <code>userId</code> 前缀</li>
+      <li><strong>无离线检测：</strong> 没有检测网络状态，离线时 API 调用静默失败</li>
+      <li><strong>KV 无过期：</strong> 删除的数据在 KV 中不会自动清理，需要手动管理</li>
+      <li><strong>无自动化测试：</strong> 没有 unit test 或 e2e test，依赖手动验证</li>
+      <li><strong>无错误上报：</strong> 用户遇到的错误不会通知开发者</li>
+    </ul>
+  </div>
+</div>
+
+<div class="card">
+  <h4>最有价值的经验</h4>
+  <p>这个项目最大的收获是<strong>状态同步的复杂性</strong>。一个看似简单的"本地存储 + 云同步"需求，涉及了竞态条件、反馈循环、数据合并策略三个层层递进的问题。每一个都是在前一个修复后才暴露出来的，需要逐步深入。最终的 <code>serializedRef</code> + 时间戳合并 + <code>source</code> 标记三重防线，是实战中摸爬滚打得来的，不是看文档能预见到的。</p>
+</div>
+
+<!-- ============ 第二部分 ============ -->
+<h2 id="part2">第二部分：新功能路线图</h2>
+
+<p>基于现有 7 大模块的架构和数据结构，以下是 12 项可加入的新功能建议，按优先级分为三档：</p>
+
+<h3 id="features">12 项新功能建议</h3>
+
+<!-- P0 -->
+<div class="feature-card priority-high">
+  <h4>1. 用户认证与多设备隔离</h4>
+  <p>当前所有数据共用一个 KV namespace，无法区分用户。加入简单的用户系统（如邮箱+密码或 OAuth），每个用户的数据存储在 <code>user:{userId}:ld_accounts</code> 这样的 key 下。这是真正多设备同步的前提。</p>
+  <p><strong>技术方案：</strong> Cloudflare Workers + D1（SQLite）存储用户信息，JWT token 认证。或者用 Cloudflare Access 零代码认证。</p>
+  <div class="tags"><span class="badge badge-be">后端</span><span class="badge badge-fe">前端</span><span class="badge badge-infra">基础设施</span></div>
+</div>
+
+<div class="feature-card priority-high">
+  <h4>2. PWA 离线支持 + 安装到桌面</h4>
+  <p>添加 <code>manifest.json</code> 和 Service Worker，让应用可安装到手机/桌面。离线时所有操作正常工作（已有 localStorage），联网后自动同步到云端。配合"离线检测"功能，联网状态切换时给用户明确反馈。</p>
+  <p><strong>技术方案：</strong> <code>next-pwa</code> 或手写 Service Worker + <code>navigator.onLine</code> 检测。</p>
+  <div class="tags"><span class="badge badge-fe">前端</span><span class="badge badge-infra">基础设施</span></div>
+</div>
+
+<div class="feature-card priority-high">
+  <h4>3. 数据统计仪表盘（Dashboard）</h4>
+  <p>在"今日概览"模块基础上，新增一个独立的数据分析页面，汇总跨模块的洞察：</p>
+  <ul>
+    <li><strong>月度财务报告：</strong> 收支趋势折线图、分类支出饼图、同比环比</li>
+    <li><strong>健康趋势：</strong> 体重+体脂率双轴折线图、BMI 演进、习惯连续天数热力图</li>
+    <li><strong>时间分析：</strong> 日程完成率、高优先级任务占比、周/月任务量柱状图</li>
+    <li><strong>消费习惯：</strong> 购物清单总价趋势、已购/未购比例</li>
+  </ul>
+  <p><strong>技术方案：</strong> 复用现有 6 个图表组件，新建 <code>components/modules/Dashboard.tsx</code>。</p>
+  <div class="tags"><span class="badge badge-fe">前端</span></div>
+</div>
+
+<!-- P1 -->
+<div class="feature-card priority-mid">
+  <h4>4. 日历视图（月历 + 周历）</h4>
+  <p>为日程模块添加完整的月历/周历视图，将 <code>ScheduleItem</code> 按日期展示在格子中。支持拖拽调整日期、点击日期快速添加。同时叠加记账和健身记录，一个日历看到所有当天活动。</p>
+  <p><strong>技术方案：</strong> 纯 CSS Grid 布局日历 + HTML5 Drag and Drop API，不引入全量日历库。</p>
+  <div class="tags"><span class="badge badge-fe">前端</span></div>
+</div>
+
+<div class="feature-card priority-mid">
+  <h4>5. 提醒通知系统</h4>
+  <p>为日程和习惯添加提醒功能：</p>
+  <ul>
+    <li>日程到期前 15 分钟浏览器通知</li>
+    <li>每日固定时间提醒打卡习惯</li>
+    <li>每周日推送本周回顾</li>
+  </ul>
+  <p><strong>技术方案：</strong> Notification API + Service Worker push（需后端定时触发）。简单版可用 <code>setTimeout</code> + <code>Notification.requestPermission()</code>。</p>
+  <div class="tags"><span class="badge badge-fe">前端</span><span class="badge badge-be">后端</span></div>
+</div>
+
+<div class="feature-card priority-mid">
+  <h4>6. 预算管理与财务目标</h4>
+  <p>在记账模块增加月度预算功能：</p>
+  <ul>
+    <li>为每个分类设置月度预算上限（如餐饮 ¥3000）</li>
+    <li>实时进度条显示已用比例</li>
+    <li>超支时高亮警告</li>
+    <li>储蓄目标追踪（如"年底存 5 万"进度）</li>
+  </ul>
+  <p><strong>技术方案：</strong> 新增 <code>Budget</code> 和 <code>SavingsGoal</code> 类型，存储在 <code>ld_budget</code> key 中。</p>
+  <div class="tags"><span class="badge badge-fe">前端</span></div>
+</div>
+
+<div class="feature-card priority-mid">
+  <h4>7. 数据可视化对比与导出报告</h4>
+  <p>支持任意时间段的对比分析：</p>
+  <ul>
+    <li>本周 vs 上周习惯完成率</li>
+    <li>本月 vs 上月支出对比</li>
+    <li>生成 PDF/图片格式的月度报告，可分享</li>
+  </ul>
+  <p><strong>技术方案：</strong> <code>html2canvas</code> 截图 + <code>jsPDF</code> 生成 PDF。数据对比复用现有图表组件。</p>
+  <div class="tags"><span class="badge badge-fe">前端</span></div>
+</div>
+
+<div class="feature-card priority-mid">
+  <h4>8. 习惯连续天数与成就系统</h4>
+  <p>为习惯模块加入游戏化元素：</p>
+  <ul>
+    <li>连续打卡天数显示（🔥 streak）</li>
+    <li>月度/年度成就徽章（如"30 天连续"、"全勤月"）</li>
+    <li>习惯完成率排行榜</li>
+    <li>自定义成就解锁动画</li>
+  </ul>
+  <p><strong>技术方案：</strong> 纯前端计算，基于 <code>HabitLog</code> 数据推导。新增 <code>ld_achievements</code> key 存储解锁状态。</p>
+  <div class="tags"><span class="badge badge-fe">前端</span></div>
+</div>
+
+<!-- P2 -->
+<div class="feature-card">
+  <h4>9. AI 智能助手</h4>
+  <p>集成 LLM 提供智能建议：</p>
+  <ul>
+    <li>"你这个月餐饮花了 3500，超预算 500，建议下周减少外卖"</li>
+    <li>"你已连续 5 天没记录体重，要忘了么？"</li>
+    <li>"根据你的日程，明天是高强度日，建议今晚早睡"</li>
+    <li>自然语言输入："明天下午 3 点开会" → 自动创建日程</li>
+  </ul>
+  <p><strong>技术方案：</strong> Cloudflare Workers AI 或接入外部 LLM API，用结构化 prompt 传入用户数据摘要。</p>
+  <div class="tags"><span class="badge badge-be">后端</span><span class="badge badge-fe">前端</span></div>
+</div>
+
+<div class="feature-card">
+  <h4>10. 多人协作与家庭共享</h4>
+  <p>支持家庭场景：</p>
+  <ul>
+    <li>共享购物清单（对方添加后实时同步）</li>
+    <li>共享日程（家庭日历）</li>
+    <li>家庭账本（共同记账）</li>
+    <li>习惯 PK 榜（家庭成员互相激励）</li>
+  </ul>
+  <p><strong>技术方案：</strong> 基于功能 1 的用户体系，增加 <code>family:{familyId}</code> 命名空间，KV key 前缀区分个人/共享数据。需要 WebSocket 或轮询实现实时同步。</p>
+  <div class="tags"><span class="badge badge-be">后端</span><span class="badge badge-fe">前端</span></div>
+</div>
+
+<div class="feature-card">
+  <h4>11. 数据备份与版本历史</h4>
+  <p>当前 KV 只存最新版本，加入：</p>
+  <ul>
+    <li>每日自动快照（<code>snapshot:2026-08-17</code> key）</li>
+    <li>误删恢复：查看 7 天内的任意快照并回滚</li>
+    <li>操作历史日志（谁在什么时候改了什么）</li>
+  </ul>
+  <p><strong>技术方案：</strong> Cloudflare KV 支持多 key，每天用 <code>ld_snapshot_{date}</code> 存全量快照。7 天外的自动过期。</p>
+  <div class="tags"><span class="badge badge-be">后端</span></div>
+</div>
+
+<div class="feature-card">
+  <h4>12. 第三方集成</h4>
+  <p>接入外部数据源和导出目标：</p>
+  <ul>
+    <li><strong>天气 API：</strong> 日程模块显示当天天气，辅助户外活动安排</li>
+    <li><strong>日历同步：</strong> Google Calendar / Apple Calendar 双向同步</li>
+    <li><strong>记账导入：</strong> 支付宝/微信账单 CSV 导入</li>
+    <li><strong>媒体信息：</strong> 豆瓣 API 自动填充书影音封面和评分</li>
+    <li><strong>健康设备：</strong> Apple Health / Google Fit 体重数据同步</li>
+  </ul>
+  <p><strong>技术方案：</strong> 各服务官方 API，通过 Cloudflare Workers 做代理（隐藏 API key）。</p>
+  <div class="tags"><span class="badge badge-be">后端</span><span class="badge badge-fe">前端</span></div>
+</div>
+
+<h3 id="priority">优先级矩阵</h3>
+
+<table>
+  <tr><th>优先级</th><th>功能</th><th>实现难度</th><th>用户价值</th><th>建议时间</th></tr>
+  <tr><td rowspan="3"><strong>P0 高</strong></td><td>PWA 离线 + 安装</td><td>低</td><td>高</td><td>1-2 天</td></tr>
+  <tr><td>数据统计仪表盘</td><td>中</td><td>高</td><td>2-3 天</td></tr>
+  <tr><td>用户认证</td><td>高</td><td>高</td><td>3-5 天</td></tr>
+  <tr><td rowspan="5"><strong>P1 中</strong></td><td>日历视图</td><td>中</td><td>高</td><td>2-3 天</td></tr>
+  <tr><td>提醒通知</td><td>中</td><td>高</td><td>2-3 天</td></tr>
+  <tr><td>预算管理</td><td>低</td><td>中</td><td>1-2 天</td></tr>
+  <tr><td>数据对比与报告</td><td>中</td><td>中</td><td>2-3 天</td></tr>
+  <tr><td>习惯成就系统</td><td>低</td><td>中</td><td>1-2 天</td></tr>
+  <tr><td rowspan="4"><strong>P2 低</strong></td><td>AI 智能助手</td><td>高</td><td>高</td><td>5-7 天</td></tr>
+  <tr><td>多人协作</td><td>高</td><td>中</td><td>5-7 天</td></tr>
+  <tr><td>数据备份历史</td><td>中</td><td>中</td><td>2-3 天</td></tr>
+  <tr><td>第三方集成</td><td>高</td><td>中</td><td>5-7 天</td></tr>
+</table>
+
+<div class="card card-green">
+  <h4>推荐实施顺序</h4>
+  <p><strong>第一阶段（巩固基础）：</strong> PWA 离线 → 数据统计仪表盘 → 日历视图。这三个功能投入产出比最高，且不改变现有架构。</p>
+  <p><strong>第二阶段（增强体验）：</strong> 预算管理 → 习惯成就系统 → 提醒通知。让现有模块更深、更有趣。</p>
+  <p><strong>第三阶段（平台化）：</strong> 用户认证 → 多人协作 → AI 助手 → 第三方集成。从个人工具进化为家庭平台。</p>
+</div>
+
+<div class="footer">
+  Life Dashboard · 全栈经验梳理与功能路线图 · 生成于 2026-08-17
+</div>
+
+</div>
+</body>
+</html>
