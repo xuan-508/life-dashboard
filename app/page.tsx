@@ -76,6 +76,56 @@ export default function Home() {
     setToast({ msg, type })
   }, [])
 
+  // —— 安装到桌面（PWA install prompt）——
+  // 浏览器通过 beforeinstallprompt 暴露安装能力，我们暂存 deferredPrompt，
+  // 待用户点击左上角图标时调用 prompt() 主动触发系统安装对话框。
+  const [installPrompt, setInstallPrompt] = useState<{
+    prompt: () => void
+    userChoice: Promise<{ outcome: 'accepted' | 'dismissed' }>
+  } | null>(null)
+
+  useEffect(() => {
+    // 捕获 beforeinstallprompt（Chrome/Edge/Android 等支持）
+    const handleBeforeInstall = (e: Event) => {
+      e.preventDefault()
+      setInstallPrompt(e as unknown as {
+        prompt: () => void
+        userChoice: Promise<{ outcome: 'accepted' | 'dismissed' }>
+      })
+    }
+    // 安装成功后的反馈
+    const handleInstalled = () => {
+      showToast('已安装到桌面 ✅')
+      setInstallPrompt(null)
+    }
+    window.addEventListener('beforeinstallprompt', handleBeforeInstall)
+    window.addEventListener('appinstalled', handleInstalled)
+    return () => {
+      window.removeEventListener('beforeinstallprompt', handleBeforeInstall)
+      window.removeEventListener('appinstalled', handleInstalled)
+    }
+  }, [showToast])
+
+  const handleInstallClick = useCallback(async () => {
+    if (installPrompt) {
+      // 触发系统原生安装对话框
+      installPrompt.prompt()
+      try {
+        const choice = await installPrompt.userChoice
+        if (choice.outcome === 'accepted') {
+          showToast('正在安装...')
+        }
+      } catch {
+        /* 用户取消或浏览器不支持时忽略 */
+      }
+      // prompt() 只能调用一次，无论结果如何都清空
+      setInstallPrompt(null)
+      return
+    }
+    // 未捕获到 install prompt（如 iOS Safari、已安装、或浏览器暂不支持）
+    showToast('请在浏览器菜单或地址栏选择“安装应用/添加到主屏幕”', 'error')
+  }, [installPrompt, showToast])
+
   // 自定义图标替换浏览器标签 favicon（临时功能，仅前端展示层，不影响安装态图标）
   useEffect(() => {
     if (typeof document === 'undefined') return
@@ -185,9 +235,24 @@ export default function Home() {
         <div className="mx-auto max-w-5xl px-4 py-3 sm:px-6">
           <div className="flex items-center justify-between">
             <h1 className="flex items-center gap-2 text-lg font-bold tracking-tight sm:text-xl">
-              {iconImage && (
-                <img src={iconImage} className="h-6 w-6 rounded-sm-clean object-cover" alt="应用图标" />
-              )}
+              <button
+                onClick={handleInstallClick}
+                className="group relative flex items-center gap-2 rounded-sm-clean px-1 py-0.5 transition-colors hover:bg-accent/10"
+                title={installPrompt ? '点击安装应用到桌面' : '安装应用到桌面'}
+                aria-label="安装应用到桌面"
+              >
+                {iconImage ? (
+                  <img src={iconImage} className="h-6 w-6 rounded-sm-clean object-cover" alt="应用图标" />
+                ) : (
+                  <svg className="h-6 w-6 rounded-sm-clean bg-accent p-1 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+                    <path strokeLinecap="round" strokeLinejoin="round" d="M12 3v12m0 0l-4-4m4 4l4-4M4 17v2a2 2 0 002 2h12a2 2 0 002-2v-2" />
+                  </svg>
+                )}
+                {/* 可安装时显示一个小提示点 */}
+                {installPrompt && (
+                  <span className="absolute -right-0.5 -top-0.5 h-2.5 w-2.5 rounded-full bg-accent ring-2 ring-paper" />
+                )}
+              </button>
               <span className="text-accent">·</span> 生活工作台
             </h1>
             <div className="flex items-center gap-3">
