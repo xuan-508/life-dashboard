@@ -1,3 +1,4 @@
+/* eslint-disable @next/next/no-img-element */
 'use client'
 
 import { useState, useRef, useEffect, useCallback } from 'react'
@@ -12,6 +13,8 @@ import Fitness from '@/components/modules/Fitness'
 import Schedule from '@/components/modules/Schedule'
 import Shopping from '@/components/modules/Shopping'
 import Media from '@/components/modules/Media'
+import SplashScreen from '@/components/SplashScreen'
+import AppearanceManager from '@/components/AppearanceManager'
 
 const TABS = [
   { key: 'overview', label: '今日概览', icon: 'M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0h6' },
@@ -32,12 +35,17 @@ export default function Home() {
   const fileJSONRef = useRef<HTMLInputElement>(null)
   const fileCSVRef = useRef<HTMLInputElement>(null)
   const menuRef = useRef<HTMLDivElement>(null)
+  const [appearanceOpen, setAppearanceOpen] = useState(false)
 
   // Overview需要的共享数据 — 使用与各模块相同的localStorage key
   const [accounts] = useLocalStorage<AccountRecord[]>('ld_accounts', [])
   const [habitLogs] = useLocalStorage<HabitLog[]>('ld_habit_logs', [])
   const [schedules] = useLocalStorage<ScheduleItem[]>('ld_schedule', [])
   const [shopping] = useLocalStorage<ShoppingItem[]>('ld_shopping', [])
+
+  // 外观图片（临时功能）：背景图与图标，开屏图由 SplashScreen 自行读取
+  const [bgImage] = useLocalStorage<string>('ld_bg_image', '')
+  const [iconImage] = useLocalStorage<string>('ld_icon_image', '')
 
   // 云同步：页面加载时自动从云端加载，数据变更时自动保存
   const cloudSync = useCloudSync()
@@ -67,6 +75,18 @@ export default function Home() {
   const showToast = useCallback((msg: string, type: 'success' | 'error' = 'success') => {
     setToast({ msg, type })
   }, [])
+
+  // 自定义图标替换浏览器标签 favicon（临时功能，仅前端展示层，不影响安装态图标）
+  useEffect(() => {
+    if (typeof document === 'undefined') return
+    let link = document.querySelector<HTMLLinkElement>('link[rel="icon"]')
+    if (!link) {
+      link = document.createElement('link')
+      link.rel = 'icon'
+      document.head.appendChild(link)
+    }
+    link.href = iconImage || '/favicon.ico'
+  }, [iconImage])
 
   const handleExportJSON = useCallback(() => {
     try {
@@ -148,12 +168,26 @@ export default function Home() {
   })()
 
   return (
-    <div className="min-h-screen bg-paper text-ink">
+    <div
+      className="min-h-screen bg-paper text-ink"
+      style={bgImage ? {
+        backgroundImage: 'url(' + bgImage + ')',
+        backgroundSize: 'cover',
+        backgroundPosition: 'center',
+        backgroundAttachment: 'fixed',
+      } : undefined}
+    >
+      {/* 开屏动画（临时功能：删除本行与 components/SplashScreen.tsx 即可整体移除） */}
+      <SplashScreen />
+
       {/* Header */}
       <header className="sticky top-0 z-50 border-b border-ink/8 bg-paper/95 backdrop-blur">
         <div className="mx-auto max-w-5xl px-4 py-3 sm:px-6">
           <div className="flex items-center justify-between">
-            <h1 className="text-lg font-bold tracking-tight sm:text-xl">
+            <h1 className="flex items-center gap-2 text-lg font-bold tracking-tight sm:text-xl">
+              {iconImage && (
+                <img src={iconImage} className="h-6 w-6 rounded-sm-clean object-cover" alt="应用图标" />
+              )}
               <span className="text-accent">·</span> 生活工作台
             </h1>
             <div className="flex items-center gap-3">
@@ -225,6 +259,16 @@ export default function Home() {
                     </button>
                     <div className="border-t border-ink/5" />
                     <button
+                      onClick={() => { setAppearanceOpen(true); setMenuOpen(false) }}
+                      className="flex w-full items-center gap-2 px-3 py-2.5 text-left text-sm text-ink/80 transition-colors hover:bg-accent/5 hover:text-accent"
+                    >
+                      <svg className="h-4 w-4 shrink-0 text-ink/40" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.8}>
+                        <path strokeLinecap="round" strokeLinejoin="round" d="M4 16l4.587-4.587a2 2 0 012.828 0L16 16m-2-2l1.587-1.587a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" />
+                      </svg>
+                      更换图片
+                    </button>
+                    <div className="border-t border-ink/5" />
+                    <button
                       onClick={handleClearData}
                       className="flex w-full items-center gap-2 px-3 py-2.5 text-left text-sm text-red-600/70 transition-colors hover:bg-red-50"
                     >
@@ -244,6 +288,9 @@ export default function Home() {
       {/* 隐藏的文件选择input */}
       <input ref={fileJSONRef} type="file" accept=".json,application/json" className="hidden" onChange={handleImportJSON} />
       <input ref={fileCSVRef} type="file" accept=".csv,text/csv" className="hidden" onChange={handleImportCSV} />
+
+      {/* 临时功能：图片外观管理弹窗（开屏动画 / 应用图标 / 背景图） */}
+      <AppearanceManager open={appearanceOpen} onClose={() => setAppearanceOpen(false)} />
 
       {/* Toast 提示 */}
       {toast && (

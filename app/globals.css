@@ -81,3 +81,33 @@ input[type=number]::-webkit-outer-spin-button {
 input[type=number] {
   -moz-appearance: textfield;
 }
+
+/* ============ 开屏动画（临时功能，可随 SplashScreen 组件一并删除） ============ */
+@keyframes splash-fade-in {
+  from {
+    opacity: 0;
+    transform: scale(0.96);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+.animate-splash-in {
+  animation: splash-fade-in 0.3s ease-out both;
+}
+
+/* ============ 外观管理弹窗（临时功能，可随 AppearanceManager 组件一并删除） ============ */
+@keyframes appearance-pop-in {
+  from {
+    opacity: 0;
+    transform: scale(0.95) translateY(8px);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1) translateY(0);
+  }
+}
+.animate-appearance-in {
+  animation: appearance-pop-in 0.2s ease-out both;
+}
