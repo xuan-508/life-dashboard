@@ -235,30 +235,35 @@ export default function Home() {
         <div className="mx-auto max-w-5xl px-4 py-3 sm:px-6">
           <div className="flex items-center justify-between">
             <h1 className="flex items-center gap-2 text-lg font-bold tracking-tight sm:text-xl">
-              <button
-                onClick={handleInstallClick}
-                className="group relative flex items-center gap-2 rounded-sm-clean px-1 py-0.5 transition-colors hover:bg-accent/10"
-                title={installPrompt ? '点击安装应用到桌面' : '安装应用到桌面'}
-                aria-label="安装应用到桌面"
-              >
-                {iconImage ? (
-                  <img src={iconImage} className="h-6 w-6 rounded-sm-clean object-cover" alt="应用图标" />
-                ) : (
-                  <svg className="h-6 w-6 rounded-sm-clean bg-accent p-1 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
-                    <path strokeLinecap="round" strokeLinejoin="round" d="M12 3v12m0 0l-4-4m4 4l4-4M4 17v2a2 2 0 002 2h12a2 2 0 002-2v-2" />
-                  </svg>
-                )}
-                {/* 可安装时显示一个小提示点 */}
-                {installPrompt && (
-                  <span className="absolute -right-0.5 -top-0.5 h-2.5 w-2.5 rounded-full bg-accent ring-2 ring-paper" />
-                )}
-              </button>
+              {/* 应用图标：仅展示，不触发安装 */}
+              {iconImage ? (
+                <img src={iconImage} className="h-6 w-6 rounded-sm-clean object-cover" alt="应用图标" />
+              ) : (
+                <svg className="h-6 w-6 rounded-sm-clean bg-accent p-1 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+                  <path strokeLinecap="round" strokeLinejoin="round" d="M12 3v12m0 0l-4-4m4 4l4-4M4 17v2a2 2 0 002 2h12a2 2 0 002-2v-2" />
+                </svg>
+              )}
               <span className="text-accent">·</span> 生活工作台
             </h1>
             <div className="flex items-center gap-3">
               <span className="hidden font-mono text-xs text-ink/50 sm:inline">
                 {new Date().toLocaleDateString('zh-CN', { year: 'numeric', month: 'long', day: 'numeric', weekday: 'long' })}
               </span>
+
+              {/* 独立安装按钮：仅当浏览器可安装时显示 */}
+              {installPrompt && (
+                <button
+                  onClick={handleInstallClick}
+                  className="flex items-center gap-1.5 rounded-clean bg-accent px-2.5 py-1.5 text-xs font-medium text-white transition-colors hover:bg-accent-dark"
+                  title="安装应用到桌面"
+                  aria-label="安装应用到桌面"
+                >
+                  <svg className="h-3.5 w-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+                    <path strokeLinecap="round" strokeLinejoin="round" d="M12 3v12m0 0l-4-4m4 4l4-4M4 17v2a2 2 0 002 2h12a2 2 0 002-2v-2" />
+                  </svg>
+                  <span className="hidden sm:inline">安装</span>
+                </button>
+              )}
 
               {/* 云同步状态指示器 */}
               <button
