@@ -1,6 +1,6 @@
 'use client'
 
-import { useState, type CSSProperties } from 'react'
+import { useState } from 'react'
 
 interface DayInfo {
   date: string // YYYY-MM-DD
@@ -12,6 +12,10 @@ interface DayInfo {
   done?: boolean
   // 附加角标文字（如日程数量）
   badge?: string
+  // 该日日程（用于在格子内直接展示标题）
+  schedules?: { id: string; title: string; done: boolean; priority: 'low' | 'medium' | 'high' }[]
+  // 该日是否拖拽悬停（高亮）
+  dragOver?: boolean
 }
 
 interface MonthCalendarProps {
@@ -20,6 +24,14 @@ interface MonthCalendarProps {
   color?: string
   onSelect?: (date: string) => void
   selectedDate?: string
+  // 拖拽某日程到此天（改日期）
+  onDropDate?: (targetDate: string) => void
+}
+
+const PRIORITY_DOT: Record<string, string> = {
+  high: '#D9534F',
+  medium: '#E89B2F',
+  low: '#999999',
 }
 
 const WEEK_LABELS = ['一', '二', '三', '四', '五', '六', '日']
@@ -36,10 +48,11 @@ export function todayStr(): string {
   return `${y}-${m}-${day}`
 }
 
-export default function MonthCalendar({ days, color = '#3B9D4A', onSelect, selectedDate }: MonthCalendarProps) {
+export default function MonthCalendar({ days, color = '#3B9D4A', onSelect, selectedDate, onDropDate }: MonthCalendarProps) {
   const now = new Date()
   const [year, setYear] = useState(now.getFullYear())
   const [month, setMonth] = useState(now.getMonth())
+  const [dragOver, setDragOver] = useState<string | null>(null)
   const today = todayStr()
 
   const firstDay = new Date(year, month, 1)
@@ -96,35 +109,68 @@ export default function MonthCalendar({ days, color = '#3B9D4A', onSelect, selec
           const info = days[date]
           const isToday = date === today
           const isSelected = date === selectedDate
+          const isDragOver = dragOver === date || info?.dragOver
           const dayNum = parseInt(date.slice(8), 10)
 
-          let bgStyle: CSSProperties = {}
-          if (info?.has) {
-            const intensity = info.intensity ?? 0.5
-            const op = info.done ? 0.85 : 0.2 + intensity * 0.6
-            bgStyle = { backgroundColor: color, opacity: op }
-          }
+          const schedules = info?.schedules ?? []
+          const shown = schedules.slice(0, 2)
+          const extra = schedules.length - shown.length
 
           return (
-            <button
+            <div
               key={date}
               onClick={() => onSelect?.(date)}
-              className="relative flex flex-col items-center justify-center aspect-square rounded-sm-clean text-xs cursor-pointer transition-colors hover:ring-1 hover:ring-accent"
+              onDragOver={(e) => {
+                if (!onDropDate) return
+                e.preventDefault()
+                setDragOver(date)
+              }}
+              onDragLeave={() => {
+                if (dragOver === date) setDragOver(null)
+              }}
+              onDrop={(e) => {
+                if (!onDropDate) return
+                e.preventDefault()
+                setDragOver(null)
+                onDropDate(date)
+              }}
+              className="relative flex flex-col min-h-[54px] rounded-sm-clean text-xs cursor-pointer transition-colors hover:ring-1 hover:ring-accent p-0.5 overflow-hidden"
               style={{
-                ...bgStyle,
-                color: info?.has && (info.done || (info.intensity ?? 0) > 0.5) ? '#fff' : '#555',
-                border: isSelected ? `1.5px solid ${color}` : '1px solid transparent',
+                border: isDragOver
+                  ? `1.5px dashed ${color}`
+                  : isSelected
+                    ? `1.5px solid ${color}`
+                    : '1px solid transparent',
                 boxShadow: isToday ? 'inset 0 0 0 1.5px ' + color : undefined,
               }}
               title={date}
             >
-              <span className={isToday ? 'font-bold' : ''}>{dayNum}</span>
-              {info?.badge && (
-                <span className="absolute top-0.5 right-0.5 text-[8px] font-mono leading-none">
-                  {info.badge}
-                </span>
-              )}
-            </button>
+              <span className={`leading-tight pl-0.5 ${isToday ? 'font-bold' : ''}`} style={{ color: '#555' }}>
+                {dayNum}
+              </span>
+              <div className="flex flex-col gap-px flex-1 min-h-0">
+                {shown.map((s) => (
+                  <div
+                    key={s.id}
+                    className="flex items-center gap-0.5 px-0.5 leading-tight truncate"
+                    style={{ color: s.done ? '#aaa' : '#333', textDecoration: s.done ? 'line-through' : 'none' }}
+                  >
+                    <span className="w-1 h-1 rounded-full shrink-0" style={{ backgroundColor: PRIORITY_DOT[s.priority] || color }} />
+                    <span className="truncate">{s.title}</span>
+                  </div>
+                ))}
+                {extra > 0 && (
+                  <div className="px-0.5 leading-tight" style={{ color: '#aaa' }}>
+                    +{extra}
+                  </div>
+                )}
+                {schedules.length === 0 && info?.badge && (
+                  <div className="px-0.5 leading-tight" style={{ color: '#aaa' }}>
+                    {info.badge}
+                  </div>
+                )}
+              </div>
+            </div>
           )
         })}
       </div>

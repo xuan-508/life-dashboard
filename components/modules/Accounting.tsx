@@ -5,6 +5,19 @@ import { AccountRecord } from '@/types'
 import { useLocalStorage, uid, todayStr, monthStr, formatMoney } from '@/lib/storage'
 import BarChart from '@/components/charts/BarChart'
 import DonutChart from '@/components/charts/DonutChart'
+import KPICard from '@/components/ui/KPICard'
+
+const ICONS = {
+  income: (
+    <svg viewBox="0 0 24 24" className="w-4 h-4" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M12 1v22M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/></svg>
+  ),
+  expense: (
+    <svg viewBox="0 0 24 24" className="w-4 h-4" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M12 1v22M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6" transform="rotate(180 12 12)"/></svg>
+  ),
+  balance: (
+    <svg viewBox="0 0 24 24" className="w-4 h-4" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><rect x="2" y="5" width="20" height="14" rx="2"/><line x1="2" y1="10" x2="22" y2="10"/></svg>
+  ),
+}
 
 const EXPENSE_CATEGORIES = ['餐饮', '交通', '购物', '住房', '娱乐', '医疗', '教育', '其他']
 const INCOME_CATEGORIES = ['工资', '兼职', '投资', '红包', '其他']
@@ -108,18 +121,27 @@ export default function Accounting() {
     <div className="space-y-4">
       {/* Summary */}
       <div className="grid grid-cols-3 gap-3">
-        <div className="card-sm">
-          <div className="label mb-1">本月收入</div>
-          <div className="stat-sm text-accent">¥{formatMoney(totalIncome)}</div>
-        </div>
-        <div className="card-sm">
-          <div className="label mb-1">本月支出</div>
-          <div className="stat-sm" style={{ color: '#D9534F' }}>¥{formatMoney(totalExpense)}</div>
-        </div>
-        <div className="card-sm">
-          <div className="label mb-1">本月结余</div>
-          <div className="stat-sm" style={{ color: balance >= 0 ? '#3B9D4A' : '#D9534F' }}>¥{formatMoney(balance)}</div>
-        </div>
+        <KPICard
+          label="本月收入"
+          value={`¥${formatMoney(totalIncome)}`}
+          color="#3B9D4A"
+          icon={ICONS.income}
+          sub="当月累计"
+        />
+        <KPICard
+          label="本月支出"
+          value={`¥${formatMoney(totalExpense)}`}
+          color="#D9534F"
+          icon={ICONS.expense}
+          sub="当月累计"
+        />
+        <KPICard
+          label="本月结余"
+          value={`¥${formatMoney(balance)}`}
+          color={balance >= 0 ? '#3B9D4A' : '#D9534F'}
+          icon={ICONS.balance}
+          sub={balance >= 0 ? '盈余' : '赤字'}
+        />
       </div>
 
       {/* Charts */}

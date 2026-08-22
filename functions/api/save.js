@@ -18,7 +18,7 @@ export async function onRequestPost({ request, env }) {
     const { module, data, secret } = body;
 
     // 校验 secret
-    if (!secret || secret !== env.API_SECRET) {
+    if (!secret || secret !== env.ADMIN_PASSWORD) {
       return new Response(JSON.stringify({ ok: false, error: 'Unauthorized' }), {
         status: 401,
         headers: { 'Content-Type': 'application/json', ...corsHeaders },
@@ -35,7 +35,7 @@ export async function onRequestPost({ request, env }) {
 
     // 写入 KV
     const value = JSON.stringify(data);
-    await env.DATA_STORE.put(module, value);
+    await env.PORTFOLIO_KV.put(module, value);
 
     return new Response(JSON.stringify({ ok: true, module, size: value.length }), {
       headers: { 'Content-Type': 'application/json', ...corsHeaders },

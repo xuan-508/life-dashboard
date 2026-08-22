@@ -8,20 +8,20 @@ const config: Config = {
   theme: {
     extend: {
       colors: {
-        paper: "#FAF9F6",
-        ink: "#1A1A1A",
-        "ink-soft": "#555555",
-        "ink-faint": "#999999",
-        "ink-border": "#E5E2DA",
+        paper: "#F4F6F8",
+        ink: "#1F2937",
+        "ink-soft": "#4B5563",
+        "ink-faint": "#9CA3AF",
+        "ink-border": "#E5E7EB",
         accent: {
-          DEFAULT: "#3B9D4A",
-          light: "#5BC06A",
-          dark: "#2A7A36",
-          bg: "#EAF5EC",
-          bg2: "#D4ECDA",
+          DEFAULT: "#14B8A6",
+          light: "#2DD4BF",
+          dark: "#0D9488",
+          bg: "#CCFBF1",
+          bg2: "#99F6E4",
         },
         surface: "#FFFFFF",
-        "surface-2": "#F3F1EB",
+        "surface-2": "#F3F4F6",
       },
       fontFamily: {
         sans: ["system-ui", "-apple-system", "Segoe UI", "Roboto", "sans-serif"],
@@ -33,8 +33,9 @@ const config: Config = {
         "stat-sm": ["18px", { lineHeight: "1.2", fontWeight: "500" }],
       },
       borderRadius: {
-        "card": "12px",
-        "sm-clean": "6px",
+        "card": "16px",
+        "xl-card": "20px",
+        "sm-clean": "8px",
       },
     },
   },

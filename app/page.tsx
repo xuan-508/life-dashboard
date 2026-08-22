@@ -15,6 +15,8 @@ import Shopping from '@/components/modules/Shopping'
 import Media from '@/components/modules/Media'
 import SplashScreen from '@/components/SplashScreen'
 import AppearanceManager from '@/components/AppearanceManager'
+import Sidebar from '@/components/layout/Sidebar'
+import Header, { HeaderAction, SearchInput, IconButton, Avatar } from '@/components/layout/Header'
 
 const TABS = [
   { key: 'overview', label: '今日概览', icon: 'M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0h6' },
@@ -31,11 +33,28 @@ type TabKey = typeof TABS[number]['key']
 export default function Home() {
   const [activeTab, setActiveTab] = useState<TabKey>('overview')
   const [menuOpen, setMenuOpen] = useState(false)
+  const [mobileMenuOpen, setMobileMenuOpen] = useState(false)
+  const [sidebarCollapsed, setSidebarCollapsed] = useState(false)
+  const [search, setSearch] = useState('')
+  const [updatedAt, setUpdatedAt] = useState('')
   const [toast, setToast] = useState<{ msg: string; type: 'success' | 'error' } | null>(null)
   const fileJSONRef = useRef<HTMLInputElement>(null)
   const fileCSVRef = useRef<HTMLInputElement>(null)
   const menuRef = useRef<HTMLDivElement>(null)
   const [appearanceOpen, setAppearanceOpen] = useState(false)
+
+  useEffect(() => {
+    setUpdatedAt(
+      new Date().toLocaleString('zh-CN', {
+        year: 'numeric',
+        month: 'long',
+        day: 'numeric',
+        weekday: 'long',
+        hour: '2-digit',
+        minute: '2-digit',
+      })
+    )
+  }, [])
 
   // Overview需要的共享数据 — 使用与各模块相同的localStorage key
   const [accounts] = useLocalStorage<AccountRecord[]>('ld_accounts', [])
@@ -51,7 +70,7 @@ export default function Home() {
   const cloudSync = useCloudSync()
   const manualSync = useManualSync()
 
-  // 点击外部关闭菜单
+  // 点击外部关闭数据菜单
   useEffect(() => {
     function handleClick(e: MouseEvent) {
       if (menuRef.current && !menuRef.current.contains(e.target as Node)) {
@@ -77,15 +96,12 @@ export default function Home() {
   }, [])
 
   // —— 安装到桌面（PWA install prompt）——
-  // 浏览器通过 beforeinstallprompt 暴露安装能力，我们暂存 deferredPrompt，
-  // 待用户点击左上角图标时调用 prompt() 主动触发系统安装对话框。
   const [installPrompt, setInstallPrompt] = useState<{
     prompt: () => void
     userChoice: Promise<{ outcome: 'accepted' | 'dismissed' }>
   } | null>(null)
 
   useEffect(() => {
-    // 捕获 beforeinstallprompt（Chrome/Edge/Android 等支持）
     const handleBeforeInstall = (e: Event) => {
       e.preventDefault()
       setInstallPrompt(e as unknown as {
@@ -93,7 +109,6 @@ export default function Home() {
         userChoice: Promise<{ outcome: 'accepted' | 'dismissed' }>
       })
     }
-    // 安装成功后的反馈
     const handleInstalled = () => {
       showToast('已安装到桌面 ✅')
       setInstallPrompt(null)
@@ -108,7 +123,6 @@ export default function Home() {
 
   const handleInstallClick = useCallback(async () => {
     if (installPrompt) {
-      // 触发系统原生安装对话框
       installPrompt.prompt()
       try {
         const choice = await installPrompt.userChoice
@@ -118,15 +132,13 @@ export default function Home() {
       } catch {
         /* 用户取消或浏览器不支持时忽略 */
       }
-      // prompt() 只能调用一次，无论结果如何都清空
       setInstallPrompt(null)
       return
     }
-    // 未捕获到 install prompt（如 iOS Safari、已安装、或浏览器暂不支持）
     showToast('请在浏览器菜单或地址栏选择“安装应用/添加到主屏幕”', 'error')
   }, [installPrompt, showToast])
 
-  // 自定义图标替换浏览器标签 favicon（临时功能，仅前端展示层，不影响安装态图标）
+  // 自定义图标替换浏览器标签 favicon
   useEffect(() => {
     if (typeof document === 'undefined') return
     let link = document.querySelector<HTMLLinkElement>('link[rel="icon"]')
@@ -167,7 +179,6 @@ export default function Home() {
     } catch (err) {
       showToast((err as Error).message, 'error')
     }
-    // 重置input以便重复导入同一文件
     e.target.value = ''
   }, [showToast])
 
@@ -217,9 +228,37 @@ export default function Home() {
     }
   })()
 
+  const currentTab = TABS.find((t) => t.key === activeTab) || TABS[0]
+
+  const sidebarItems = TABS.map((t) => ({ key: t.key, label: t.label, icon: t.icon }))
+
+  const logoNode = (
+    <>
+      {iconImage ? (
+        <img src={iconImage} className='h-7 w-7 rounded-sm-clean object-cover' alt='应用图标' />
+      ) : (
+        <svg className='h-7 w-7 rounded-sm-clean bg-accent p-1 text-white' fill='none' viewBox='0 0 24 24' stroke='currentColor' strokeWidth={2}>
+          <path strokeLinecap='round' strokeLinejoin='round' d='M12 3v12m0 0l-4-4m4 4l4-4M4 17v2a2 2 0 002 2h12a2 2 0 002-2v-2' />
+        </svg>
+      )}
+      <span className='text-base font-bold text-ink'>生活工作台</span>
+    </>
+  )
+
+  const footerNode = (
+    <div className='space-y-1'>
+      <p className='font-medium text-ink-soft'>生活工作台</p>
+      <p className='text-ink-faint'>
+        {cloudSync.enabled
+          ? `云端同步已${cloudSync.status === 'synced' ? '连接' : cloudSync.status === 'loading' ? '连接中' : cloudSync.status === 'error' ? '异常' : '等待中'}`
+          : '数据存储于本地浏览器'}
+      </p>
+    </div>
+  )
+
   return (
     <div
-      className="min-h-screen bg-paper text-ink"
+      className='min-h-screen bg-paper text-ink'
       style={bgImage ? {
         backgroundImage: 'url(' + bgImage + ')',
         backgroundSize: 'cover',
@@ -227,204 +266,199 @@ export default function Home() {
         backgroundAttachment: 'fixed',
       } : undefined}
     >
-      {/* 开屏动画（临时功能：删除本行与 components/SplashScreen.tsx 即可整体移除） */}
+      {/* 开屏动画 */}
       <SplashScreen />
 
-      {/* Header */}
-      <header className="sticky top-0 z-50 border-b border-ink/8 bg-paper/95 backdrop-blur">
-        <div className="mx-auto max-w-5xl px-4 py-3 sm:px-6">
-          <div className="flex items-center justify-between">
-            <h1 className="flex items-center gap-2 text-lg font-bold tracking-tight sm:text-xl">
-              {/* 应用图标：仅展示，不触发安装 */}
-              {iconImage ? (
-                <img src={iconImage} className="h-6 w-6 rounded-sm-clean object-cover" alt="应用图标" />
-              ) : (
-                <svg className="h-6 w-6 rounded-sm-clean bg-accent p-1 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
-                  <path strokeLinecap="round" strokeLinejoin="round" d="M12 3v12m0 0l-4-4m4 4l4-4M4 17v2a2 2 0 002 2h12a2 2 0 002-2v-2" />
-                </svg>
-              )}
-              <span className="text-accent">·</span> 生活工作台
-            </h1>
-            <div className="flex items-center gap-3">
-              <span className="hidden font-mono text-xs text-ink/50 sm:inline">
-                {new Date().toLocaleDateString('zh-CN', { year: 'numeric', month: 'long', day: 'numeric', weekday: 'long' })}
-              </span>
+      {/* 桌面端侧边栏 */}
+      <div className='hidden lg:block'>
+        <Sidebar
+          items={sidebarItems}
+          active={activeTab}
+          onChange={(key) => setActiveTab(key as TabKey)}
+          logo={logoNode}
+          footer={footerNode}
+          collapsed={sidebarCollapsed}
+          onToggleCollapse={() => setSidebarCollapsed((v) => !v)}
+        />
+      </div>
 
-              {/* 独立安装按钮：仅当浏览器可安装时显示 */}
+      {/* 移动端侧边栏抽屉 */}
+      {mobileMenuOpen && (
+        <>
+          <div className='fixed inset-0 z-50 bg-black/40 lg:hidden' onClick={() => setMobileMenuOpen(false)} />
+          <div className='fixed left-0 top-0 z-50 h-screen w-60 lg:hidden'>
+            <Sidebar
+              items={sidebarItems}
+              active={activeTab}
+              onChange={(key) => {
+                setActiveTab(key as TabKey)
+                setMobileMenuOpen(false)
+              }}
+              logo={logoNode}
+              footer={footerNode}
+            />
+          </div>
+        </>
+      )}
+
+      <div className={`flex min-h-screen flex-col transition-all duration-300 ${sidebarCollapsed ? 'lg:pl-16' : 'lg:pl-60'}`}>
+        {/* 顶部工具栏 */}
+        <Header
+          title={currentTab.label}
+          updatedAt={updatedAt}
+          search={<SearchInput value={search} onChange={setSearch} placeholder='搜索内容…' />}
+          extra={
+            <>
+              <div className='lg:hidden'>
+                <IconButton icon='M4 6h16M4 12h16M4 18h16' onClick={() => setMobileMenuOpen(true)} title='菜单' />
+              </div>
+              <IconButton
+                icon='M15 17h5l-1.405-1.405A2.032 2.032 0 0118 14.158V11a6.002 6.002 0 00-4-5.659V5a2 2 0 10-4 0v.341C7.67 6.165 6 8.388 6 11v3.159c0 .538-.214 1.055-.595 1.436L4 17h5m6 0v1a3 3 0 11-6 0v-1m6 0H9'
+                title='通知'
+                dot
+              />
+              <Avatar fallback='我' />
+            </>
+          }
+          actions={
+            <>
               {installPrompt && (
-                <button
-                  onClick={handleInstallClick}
-                  className="flex items-center gap-1.5 rounded-clean bg-accent px-2.5 py-1.5 text-xs font-medium text-white transition-colors hover:bg-accent-dark"
-                  title="安装应用到桌面"
-                  aria-label="安装应用到桌面"
-                >
-                  <svg className="h-3.5 w-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
-                    <path strokeLinecap="round" strokeLinejoin="round" d="M12 3v12m0 0l-4-4m4 4l4-4M4 17v2a2 2 0 002 2h12a2 2 0 002-2v-2" />
+                <HeaderAction onClick={handleInstallClick} title='安装应用到桌面' primary>
+                  <svg className='h-3.5 w-3.5' fill='none' viewBox='0 0 24 24' stroke='currentColor' strokeWidth={2}>
+                    <path strokeLinecap='round' strokeLinejoin='round' d='M12 3v12m0 0l-4-4m4 4l4-4M4 17v2a2 2 0 002 2h12a2 2 0 002-2v-2' />
                   </svg>
-                  <span className="hidden sm:inline">安装</span>
-                </button>
+                  <span className='hidden sm:inline'>安装</span>
+                </HeaderAction>
               )}
-
-              {/* 云同步状态指示器 */}
               <button
                 onClick={handleManualSync}
                 disabled={!cloudSync.enabled || manualSync.syncing}
-                className="flex items-center gap-1.5 rounded-clean border border-ink/10 px-2.5 py-1.5 text-xs font-medium text-ink/70 transition-colors hover:border-accent/30 hover:text-accent disabled:opacity-50 disabled:cursor-not-allowed"
+                className='flex items-center gap-1.5 rounded-clean border border-ink-border px-2.5 py-1.5 text-xs font-medium text-ink-soft transition-colors hover:border-accent/30 hover:text-accent disabled:opacity-50 disabled:cursor-not-allowed'
                 title={syncIndicator.title}
               >
                 <span className={`h-2 w-2 rounded-full ${syncIndicator.dot}`} />
-                <span className="hidden sm:inline">{manualSync.syncing ? '同步中...' : syncIndicator.text}</span>
+                <span className='hidden sm:inline'>{manualSync.syncing ? '同步中...' : syncIndicator.text}</span>
               </button>
-
-              {/* 导出/导入菜单 */}
-              <div className="relative" ref={menuRef}>
-                <button
-                  onClick={() => setMenuOpen(!menuOpen)}
-                  className="flex items-center gap-1 rounded-clean border border-ink/10 px-2.5 py-1.5 text-xs font-medium text-ink/70 transition-colors hover:border-accent/30 hover:text-accent"
-                  aria-label="数据管理"
-                >
-                  <svg className="h-3.5 w-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
-                    <path strokeLinecap="round" strokeLinejoin="round" d="M12 3v12m0 0l-4-4m4 4l4-4M3 17v3a1 1 0 001 1h16a1 1 0 001-1v-3" />
+              <div className='relative' ref={menuRef}>
+                <HeaderAction onClick={() => setMenuOpen(!menuOpen)} title='数据管理'>
+                  <svg className='h-3.5 w-3.5' fill='none' viewBox='0 0 24 24' stroke='currentColor' strokeWidth={2}>
+                    <path strokeLinecap='round' strokeLinejoin='round' d='M12 3v12m0 0l-4-4m4 4l4-4M3 17v3a1 1 0 001 1h16a1 1 0 001-1v-3' />
                   </svg>
-                  <span className="hidden sm:inline">数据</span>
-                </button>
+                  <span className='hidden sm:inline'>数据</span>
+                </HeaderAction>
                 {menuOpen && (
-                  <div className="absolute right-0 top-full mt-1 w-52 overflow-hidden rounded-lg border border-ink/10 bg-paper shadow-lg">
+                  <div className='absolute right-0 top-full mt-1 w-52 overflow-hidden rounded-lg border border-ink/10 bg-paper shadow-lg'>
                     <button
                       onClick={handleExportJSON}
-                      className="flex w-full items-center gap-2 px-3 py-2.5 text-left text-sm text-ink/80 transition-colors hover:bg-accent/5 hover:text-accent"
+                      className='flex w-full items-center gap-2 px-3 py-2.5 text-left text-sm text-ink/80 transition-colors hover:bg-accent/5 hover:text-accent'
                     >
-                      <svg className="h-4 w-4 shrink-0 text-ink/40" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.8}>
-                        <path strokeLinecap="round" strokeLinejoin="round" d="M12 3v12m0 0l-4-4m4 4l4-4M3 17v3a1 1 0 001 1h16a1 1 0 001-1v-3" />
+                      <svg className='h-4 w-4 shrink-0 text-ink/40' fill='none' viewBox='0 0 24 24' stroke='currentColor' strokeWidth={1.8}>
+                        <path strokeLinecap='round' strokeLinejoin='round' d='M12 3v12m0 0l-4-4m4 4l4-4M3 17v3a1 1 0 001 1h16a1 1 0 001-1v-3' />
                       </svg>
                       导出 JSON
                     </button>
                     <button
                       onClick={() => { fileJSONRef.current?.click() }}
-                      className="flex w-full items-center gap-2 px-3 py-2.5 text-left text-sm text-ink/80 transition-colors hover:bg-accent/5 hover:text-accent"
+                      className='flex w-full items-center gap-2 px-3 py-2.5 text-left text-sm text-ink/80 transition-colors hover:bg-accent/5 hover:text-accent'
                     >
-                      <svg className="h-4 w-4 shrink-0 text-ink/40" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.8}>
-                        <path strokeLinecap="round" strokeLinejoin="round" d="M12 15V3m0 0l-4 4m4-4l4 4M3 17v3a1 1 0 001 1h16a1 1 0 001-1v-3" />
+                      <svg className='h-4 w-4 shrink-0 text-ink/40' fill='none' viewBox='0 0 24 24' stroke='currentColor' strokeWidth={1.8}>
+                        <path strokeLinecap='round' strokeLinejoin='round' d='M12 15V3m0 0l-4 4m4-4l4 4M3 17v3a1 1 0 001 1h16a1 1 0 001-1v-3' />
                       </svg>
                       导入 JSON
                     </button>
-                    <div className="border-t border-ink/5" />
+                    <div className='border-t border-ink/5' />
                     <button
                       onClick={handleExportCSV}
-                      className="flex w-full items-center gap-2 px-3 py-2.5 text-left text-sm text-ink/80 transition-colors hover:bg-accent/5 hover:text-accent"
+                      className='flex w-full items-center gap-2 px-3 py-2.5 text-left text-sm text-ink/80 transition-colors hover:bg-accent/5 hover:text-accent'
                     >
-                      <svg className="h-4 w-4 shrink-0 text-ink/40" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.8}>
-                        <path strokeLinecap="round" strokeLinejoin="round" d="M12 3v12m0 0l-4-4m4 4l4-4M3 17v3a1 1 0 001 1h16a1 1 0 001-1v-3" />
+                      <svg className='h-4 w-4 shrink-0 text-ink/40' fill='none' viewBox='0 0 24 24' stroke='currentColor' strokeWidth={1.8}>
+                        <path strokeLinecap='round' strokeLinejoin='round' d='M12 3v12m0 0l-4-4m4 4l4-4M3 17v3a1 1 0 001 1h16a1 1 0 001-1v-3' />
                       </svg>
                       导出 CSV
                     </button>
                     <button
                       onClick={() => { fileCSVRef.current?.click() }}
-                      className="flex w-full items-center gap-2 px-3 py-2.5 text-left text-sm text-ink/80 transition-colors hover:bg-accent/5 hover:text-accent"
+                      className='flex w-full items-center gap-2 px-3 py-2.5 text-left text-sm text-ink/80 transition-colors hover:bg-accent/5 hover:text-accent'
                     >
-                      <svg className="h-4 w-4 shrink-0 text-ink/40" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.8}>
-                        <path strokeLinecap="round" strokeLinejoin="round" d="M12 15V3m0 0l-4 4m4-4l4 4M3 17v3a1 1 0 001 1h16a1 1 0 001-1v-3" />
+                      <svg className='h-4 w-4 shrink-0 text-ink/40' fill='none' viewBox='0 0 24 24' stroke='currentColor' strokeWidth={1.8}>
+                        <path strokeLinecap='round' strokeLinejoin='round' d='M12 15V3m0 0l-4 4m4-4l4 4M3 17v3a1 1 0 001 1h16a1 1 0 001-1v-3' />
                       </svg>
                       导入 CSV
                     </button>
-                    <div className="border-t border-ink/5" />
+                    <div className='border-t border-ink/5' />
                     <button
                       onClick={() => { setAppearanceOpen(true); setMenuOpen(false) }}
-                      className="flex w-full items-center gap-2 px-3 py-2.5 text-left text-sm text-ink/80 transition-colors hover:bg-accent/5 hover:text-accent"
+                      className='flex w-full items-center gap-2 px-3 py-2.5 text-left text-sm text-ink/80 transition-colors hover:bg-accent/5 hover:text-accent'
                     >
-                      <svg className="h-4 w-4 shrink-0 text-ink/40" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.8}>
-                        <path strokeLinecap="round" strokeLinejoin="round" d="M4 16l4.587-4.587a2 2 0 012.828 0L16 16m-2-2l1.587-1.587a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" />
+                      <svg className='h-4 w-4 shrink-0 text-ink/40' fill='none' viewBox='0 0 24 24' stroke='currentColor' strokeWidth={1.8}>
+                        <path strokeLinecap='round' strokeLinejoin='round' d='M4 16l4.587-4.587a2 2 0 012.828 0L16 16m-2-2l1.587-1.587a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z' />
                       </svg>
                       更换图片
                     </button>
-                    <div className="border-t border-ink/5" />
+                    <div className='border-t border-ink/5' />
                     <button
                       onClick={handleClearData}
-                      className="flex w-full items-center gap-2 px-3 py-2.5 text-left text-sm text-red-600/70 transition-colors hover:bg-red-50"
+                      className='flex w-full items-center gap-2 px-3 py-2.5 text-left text-sm text-red-600/70 transition-colors hover:bg-red-50'
                     >
-                      <svg className="h-4 w-4 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.8}>
-                        <path strokeLinecap="round" strokeLinejoin="round" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6M1 7h22M9 7V4a1 1 0 011-1h4a1 1 0 011 1v3" />
+                      <svg className='h-4 w-4 shrink-0' fill='none' viewBox='0 0 24 24' stroke='currentColor' strokeWidth={1.8}>
+                        <path strokeLinecap='round' strokeLinejoin='round' d='M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6M1 7h22M9 7V4a1 1 0 011-1h4a1 1 0 011 1v3' />
                       </svg>
                       清空数据
                     </button>
                   </div>
                 )}
               </div>
+            </>
+          }
+        />
+
+        {/* 隐藏的文件选择input */}
+        <input ref={fileJSONRef} type='file' accept='.json,application/json' className='hidden' onChange={handleImportJSON} />
+        <input ref={fileCSVRef} type='file' accept='.csv,text/csv' className='hidden' onChange={handleImportCSV} />
+
+        {/* 图片外观管理弹窗 */}
+        <AppearanceManager open={appearanceOpen} onClose={() => setAppearanceOpen(false)} />
+
+        {/* Toast 提示 */}
+        {toast && (
+          <div className='fixed bottom-6 left-1/2 z-[100] -translate-x-1/2 animate-fadeIn'>
+            <div className={`rounded-lg px-4 py-2.5 text-sm font-medium shadow-lg ${
+              toast.type === 'success' ? 'bg-accent text-white' : 'bg-red-600 text-white'
+            }`}>
+              {toast.msg}
             </div>
           </div>
-        </div>
-      </header>
-
-      {/* 隐藏的文件选择input */}
-      <input ref={fileJSONRef} type="file" accept=".json,application/json" className="hidden" onChange={handleImportJSON} />
-      <input ref={fileCSVRef} type="file" accept=".csv,text/csv" className="hidden" onChange={handleImportCSV} />
-
-      {/* 临时功能：图片外观管理弹窗（开屏动画 / 应用图标 / 背景图） */}
-      <AppearanceManager open={appearanceOpen} onClose={() => setAppearanceOpen(false)} />
-
-      {/* Toast 提示 */}
-      {toast && (
-        <div className="fixed bottom-6 left-1/2 z-[100] -translate-x-1/2 animate-fadeIn">
-          <div className={`rounded-lg px-4 py-2.5 text-sm font-medium shadow-lg ${
-            toast.type === 'success' ? 'bg-accent text-white' : 'bg-red-600 text-white'
-          }`}>
-            {toast.msg}
-          </div>
-        </div>
-      )}
-
-      {/* Tab Navigation */}
-      <nav className="sticky top-[57px] z-40 border-b border-ink/8 bg-paper/95 backdrop-blur">
-        <div className="mx-auto max-w-5xl px-2 sm:px-6">
-          <div className="flex gap-1 overflow-x-auto scrollbar-hide">
-            {TABS.map((tab) => (
-              <button
-                key={tab.key}
-                onClick={() => setActiveTab(tab.key)}
-                className={`flex shrink-0 items-center gap-1.5 border-b-2 px-3 py-3 text-sm font-medium transition-colors ${
-                  activeTab === tab.key
-                    ? 'border-accent text-accent'
-                    : 'border-transparent text-ink/50 hover:text-ink'
-                }`}
-              >
-                <svg className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.8}>
-                  <path strokeLinecap="round" strokeLinejoin="round" d={tab.icon} />
-                </svg>
-                <span>{tab.label}</span>
-              </button>
-            ))}
-          </div>
-        </div>
-      </nav>
-
-      {/* Content */}
-      <main className="mx-auto max-w-5xl px-4 py-6 sm:px-6 sm:py-8">
-        {activeTab === 'overview' && (
-          <Overview
-            accounts={accounts}
-            habitLogs={habitLogs}
-            schedules={schedules}
-            shopping={shopping}
-          />
         )}
-        {activeTab === 'accounting' && <Accounting />}
-        {activeTab === 'habits' && <Habits />}
-        {activeTab === 'fitness' && <Fitness />}
-        {activeTab === 'schedule' && <Schedule />}
-        {activeTab === 'shopping' && <Shopping />}
-        {activeTab === 'media' && <Media />}
-      </main>
 
-      {/* Footer */}
-      <footer className="border-t border-ink/8 py-6">
-        <div className="mx-auto max-w-5xl px-6 text-center">
-          <p className="font-mono text-xs text-ink/40">
-            生活工作台 · {cloudSync.enabled
-              ? `云端同步已${cloudSync.status === 'synced' ? '连接' : cloudSync.status === 'loading' ? '连接中' : cloudSync.status === 'error' ? '异常' : '等待中'}`
-              : '数据存储于本地浏览器'} · Next.js
-          </p>
-        </div>
-      </footer>
+        {/* 主体内容 */}
+        <main className='flex-1 px-4 py-6 sm:px-6 sm:py-8'>
+          {activeTab === 'overview' && (
+            <Overview
+              accounts={accounts}
+              habitLogs={habitLogs}
+              schedules={schedules}
+              shopping={shopping}
+            />
+          )}
+          {activeTab === 'accounting' && <Accounting />}
+          {activeTab === 'habits' && <Habits />}
+          {activeTab === 'fitness' && <Fitness />}
+          {activeTab === 'schedule' && <Schedule />}
+          {activeTab === 'shopping' && <Shopping />}
+          {activeTab === 'media' && <Media />}
+        </main>
+
+        {/* Footer */}
+        <footer className='border-t border-ink/8 py-4'>
+          <div className='px-6 text-center'>
+            <p className='font-mono text-xs text-ink/40'>
+              生活工作台 · {cloudSync.enabled
+                ? `云端同步已${cloudSync.status === 'synced' ? '连接' : cloudSync.status === 'loading' ? '连接中' : cloudSync.status === 'error' ? '异常' : '等待中'}`
+                : '数据存储于本地浏览器'} · Next.js
+            </p>
+          </div>
+        </footer>
+      </div>
     </div>
   )
 }

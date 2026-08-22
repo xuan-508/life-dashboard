@@ -18,7 +18,7 @@ export async function onRequestPost({ request, env }) {
     const { module, secret } = body;
 
     // 校验 secret
-    if (!secret || secret !== env.API_SECRET) {
+    if (!secret || secret !== env.ADMIN_PASSWORD) {
       return new Response(JSON.stringify({ ok: false, error: 'Unauthorized' }), {
         status: 401,
         headers: { 'Content-Type': 'application/json', ...corsHeaders },
@@ -34,7 +34,7 @@ export async function onRequestPost({ request, env }) {
     }
 
     // 从 KV 读取
-    const value = await env.DATA_STORE.get(module);
+    const value = await env.PORTFOLIO_KV.get(module);
     const data = value ? JSON.parse(value) : null;
 
     return new Response(JSON.stringify({ ok: true, module, data }), {
@@ -56,7 +56,7 @@ export async function onRequestGet({ request, env }) {
     const secret = url.searchParams.get('secret');
 
     // 校验 secret
-    if (!secret || secret !== env.API_SECRET) {
+    if (!secret || secret !== env.ADMIN_PASSWORD) {
       return new Response(JSON.stringify({ ok: false, error: 'Unauthorized' }), {
         status: 401,
         headers: { 'Content-Type': 'application/json', ...corsHeaders },
@@ -72,7 +72,7 @@ export async function onRequestGet({ request, env }) {
     }
 
     // 从 KV 读取
-    const value = await env.DATA_STORE.get(module);
+    const value = await env.PORTFOLIO_KV.get(module);
     const data = value ? JSON.parse(value) : null;
 
     return new Response(JSON.stringify({ ok: true, module, data }), {

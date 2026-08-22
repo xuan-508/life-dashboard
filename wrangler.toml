@@ -3,11 +3,17 @@ compatibility_date = "2024-08-18"
 
 # KV namespace 绑定
 # 在 Cloudflare Dashboard 中创建 KV namespace 后，将真实 ID 填入下方 id 字段
-# binding 变量名 DATA_STORE 在 Pages Functions 中通过 env.DATA_STORE 访问
+# binding 变量名 PORTFOLIO_KV 在 Pages Functions 中通过 env.PORTFOLIO_KV 访问
 [[kv_namespaces]]
-binding = "DATA_STORE"
+binding = "PORTFOLIO_KV"
 id = "16e2149d0d574a44bdbce2f8f1339213"
+
+# R2 bucket 绑定（可选，用于存储外观图片等静态资源）
+# 在 Cloudflare Dashboard 中创建 R2 bucket 并设置公开访问域名后取消注释
+# [[r2_buckets]]
+# binding = "PORTFOLIO_R2"
+# bucket_name = "life-dashboard-assets"
 
 # Pages Functions 配置
 # functions/ 目录下的文件会自动被 Cloudflare Pages 识别为边缘函数
-# 无需额外配置，部署后 /api/save 和 /api/load 即可访问
+# 无需额外配置，部署后 /api/save、/api/load 和 /api/admin/* 即可访问

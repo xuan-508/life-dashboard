@@ -181,7 +181,7 @@ export function calcBMI(weight: number, heightCm: number): number {
 
 export function bmiCategory(bmi: number): { label: string; color: string } {
   if (bmi < 18.5) return { label: '偏瘦', color: '#999999' }
-  if (bmi < 24) return { label: '正常', color: '#3B9D4A' }
+  if (bmi < 24) return { label: '正常', color: '#14B8A6' }
   if (bmi < 28) return { label: '偏胖', color: '#E89B2F' }
   return { label: '肥胖', color: '#D9534F' }
 }

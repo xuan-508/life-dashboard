@@ -2,8 +2,9 @@
 
 import { useState, useMemo } from 'react'
 import { useLocalStorage, uid, todayStr, formatDate } from '@/lib/storage'
-import type { ScheduleItem, ScheduleStatus, SchedulePriority } from '@/types'
+import type { ScheduleItem, ScheduleStatus, SchedulePriority, AccountRecord, FitnessRecord } from '@/types'
 import MonthCalendar from '@/components/charts/MonthCalendar'
+import WeekCalendar from '@/components/charts/WeekCalendar'
 
 const STATUS_CONFIG: Record<ScheduleStatus, { label: string; bg: string; text: string; border: string }> = {
   todo:  { label: '待办', bg: 'bg-surface-2',  text: 'text-ink-soft',  border: 'border-ink-border' },
@@ -19,13 +20,21 @@ const PRIORITY_CONFIG: Record<SchedulePriority, { label: string; color: string }
   high:   { label: '高', color: '#D9534F' },
 }
 
-export default function Schedule() {
+interface ScheduleProps {
+  accounts?: AccountRecord[]
+  fitness?: FitnessRecord[]
+}
+
+export default function Schedule({ accounts = [], fitness = [] }: ScheduleProps) {
   const [items, setItems] = useLocalStorage<ScheduleItem[]>('ld_schedule', [])
   const [title, setTitle] = useState('')
   const [date, setDate] = useState(todayStr())
   const [priority, setPriority] = useState<SchedulePriority>('medium')
   const [note, setNote] = useState('')
   const [filterDate, setFilterDate] = useState<string>('')
+  // 月历 / 周历 切换
+  const [calMode, setCalMode] = useState<'month' | 'week'>('month')
+  const [weekOffset, setWeekOffset] = useState(0)
 
   const sorted = useMemo(() => {
     return [...items].sort((a, b) => {
@@ -51,15 +60,61 @@ export default function Schedule() {
     return { todo, doing, done, total: items.length }
   }, [items])
 
-  // Calendar data: date -> DayInfo (aggregate schedule count per date)
-  const calDays = useMemo(() => {
-    const map: Record<string, { date: string; has: boolean; intensity?: number; done?: boolean; badge?: string }> = {}
-    items.forEach((item) => {
-      if (!map[item.date]) map[item.date] = { date: item.date, has: true, intensity: 1 }
-      map[item.date].badge = String((parseInt(map[item.date].badge || '0', 10) || 0) + 1)
+  // 聚合记账与健身记录：date -> 每日收支净额与是否有健身记录
+  const accountByDate = useMemo(() => {
+    const map: Record<string, { income: number; expense: number }> = {}
+    accounts.forEach((a) => {
+      if (!map[a.date]) map[a.date] = { income: 0, expense: 0 }
+      if (a.type === 'income') map[a.date].income += a.amount
+      else map[a.date].expense += a.amount
     })
     return map
-  }, [items])
+  }, [accounts])
+
+  const fitnessDates = useMemo(() => {
+    return new Set(fitness.map((f) => f.date))
+  }, [fitness])
+
+  // Calendar data: date -> DayInfo，含日程标题 + 记账 + 健身叠加
+  const calDays = useMemo(() => {
+    const map: Record<string, {
+      date: string
+      has: boolean
+      intensity?: number
+      done?: boolean
+      badge?: string
+      schedules?: { id: string; title: string; done: boolean; priority: 'low' | 'medium' | 'high' }[]
+      income?: number
+      expense?: number
+      hasFitness?: boolean
+    }> = {}
+    items.forEach((item) => {
+      if (!map[item.date]) map[item.date] = { date: item.date, has: true, intensity: 1, schedules: [] }
+      map[item.date].schedules!.push({
+        id: item.id,
+        title: item.title,
+        done: item.status === 'done',
+        priority: item.priority,
+      })
+    })
+    // 叠加记账
+    Object.entries(accountByDate).forEach(([d, v]) => {
+      if (!map[d]) map[d] = { date: d, has: true, intensity: 1, schedules: [] }
+      map[d].income = v.income
+      map[d].expense = v.expense
+    })
+    // 叠加健身
+    fitnessDates.forEach((d) => {
+      if (!map[d]) map[d] = { date: d, has: true, intensity: 1, schedules: [] }
+      map[d].hasFitness = true
+    })
+    // 日程数量角标
+    Object.values(map).forEach((day) => {
+      const n = day.schedules?.length ?? 0
+      if (n > 0) day.badge = String(n)
+    })
+    return map
+  }, [items, accountByDate, fitnessDates])
 
   const hasFilter = filterDate !== ''
 
@@ -93,6 +148,28 @@ export default function Schedule() {
   function handleDelete(id: string) {
     setItems((prev) => prev.filter((i) => i.id !== id))
   }
+
+  // 拖拽改日期
+  function handleDropDate(targetDate: string) {
+    const dragId = dragIdRef.current
+    dragIdRef.current = null
+    if (!dragId) return
+    setItems((prev) =>
+      prev.map((item) =>
+        item.id === dragId && item.date !== targetDate
+          ? { ...item, date: targetDate, updatedAt: Date.now() }
+          : item
+      )
+    )
+  }
+
+  // 点击日历格子：选中 + 预填添加表单日期
+  function handleSelectDate(d: string) {
+    setDate(d)
+    setFilterDate(d === filterDate ? '' : d)
+  }
+
+  const dragIdRef = { current: null as string | null }
 
   return (
     <div className="space-y-4">
@@ -152,14 +229,66 @@ export default function Schedule() {
         />
       </div>
 
-      {/* Calendar */}
+      {/* Calendar: 月/周切换 */}
       <div className="card">
-        <MonthCalendar
-          days={calDays}
-          color="#3B9D4A"
-          onSelect={(d) => setFilterDate(d === filterDate ? '' : d)}
-          selectedDate={filterDate || undefined}
-        />
+        <div className="mb-3 flex items-center justify-between">
+          <div className="label">日历视图</div>
+          <div className="flex gap-1 rounded-clean border border-ink/10 p-0.5">
+            <button
+              onClick={() => setCalMode('month')}
+              className={`rounded-clean px-2.5 py-1 text-xs font-medium transition-colors ${
+                calMode === 'month' ? 'bg-accent text-white' : 'text-ink/60 hover:text-accent'
+              }`}
+            >
+              月历
+            </button>
+            <button
+              onClick={() => setCalMode('week')}
+              className={`rounded-clean px-2.5 py-1 text-xs font-medium transition-colors ${
+                calMode === 'week' ? 'bg-accent text-white' : 'text-ink/60 hover:text-accent'
+              }`}
+            >
+              周历
+            </button>
+          </div>
+        </div>
+
+        {calMode === 'month' ? (
+          <MonthCalendar
+            days={calDays}
+            color="#3B9D4A"
+            onSelect={handleSelectDate}
+            onDropDate={handleDropDate}
+            selectedDate={filterDate || undefined}
+          />
+        ) : (
+          <WeekCalendar
+            days={calDays}
+            color="#3B9D4A"
+            onSelect={handleSelectDate}
+            onDropDate={handleDropDate}
+            selectedDate={filterDate || undefined}
+            weekOffset={weekOffset}
+            onWeekChange={setWeekOffset}
+          />
+        )}
+
+        {/* 日历图例 */}
+        <div className="mt-3 flex flex-wrap items-center gap-x-4 gap-y-1 border-t border-ink/5 pt-2 text-[11px] text-ink-faint">
+          <span className="flex items-center gap-1">
+            <span className="inline-block h-2 w-2 rounded-full" style={{ backgroundColor: '#3B9D4A' }} /> 日程
+          </span>
+          <span className="flex items-center gap-1">
+            <span className="inline-block h-2 w-2 rounded-full" style={{ backgroundColor: '#D9534F' }} /> 支出
+          </span>
+          <span className="flex items-center gap-1">
+            <span className="inline-block h-2 w-2 rounded-full" style={{ backgroundColor: '#2F9E44' }} /> 收入
+          </span>
+          <span className="flex items-center gap-1">
+            <span className="inline-block h-2 w-2 rounded-full" style={{ backgroundColor: '#4A90D9' }} /> 健身
+          </span>
+          <span className="ml-auto">拖拽日程可调整日期</span>
+        </div>
       </div>
 
       {/* Filter */}
@@ -199,7 +328,15 @@ export default function Schedule() {
                 return (
                   <div
                     key={item.id}
-                    className={`card-sm flex items-center gap-3 ${item.status === 'done' ? 'opacity-60' : ''}`}
+                    draggable
+                    onDragStart={(e) => {
+                      e.dataTransfer.setData('text/plain', item.id)
+                      e.dataTransfer.effectAllowed = 'move'
+                      dragIdRef.current = item.id
+                    }}
+                    onDragEnd={() => { dragIdRef.current = null }}
+                    className={`card-sm flex items-center gap-3 ${item.status === 'done' ? 'opacity-60' : ''} cursor-grab active:cursor-grabbing`}
+                    title="拖拽可调整日期"
                   >
                     {/* Status toggle */}
                     <button

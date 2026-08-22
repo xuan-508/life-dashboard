@@ -8,8 +8,8 @@
     -moz-osx-font-smoothing: grayscale;
   }
   body {
-    background-color: #FAF9F6;
-    color: #1A1A1A;
+    background-color: #F4F6F8;
+    color: #1F2937;
     font-feature-settings: "tnum";
   }
   * {
@@ -65,11 +65,11 @@
   background: transparent;
 }
 ::-webkit-scrollbar-thumb {
-  background: #E5E2DA;
+  background: #E5E7EB;
   border-radius: 3px;
 }
 ::-webkit-scrollbar-thumb:hover {
-  background: #999999;
+  background: #9CA3AF;
 }
 
 /* hide number input spinners */

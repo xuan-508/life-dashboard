@@ -3,7 +3,9 @@
 // NEXT_PUBLIC_ 前缀变量在构建时内联到 JS bundle，与硬编码安全性等价
 // 直接使用常量避免环境变量配置问题（Cloudflare Pages token 权限不足无法设置）
 
-const API_SECRET = 'lixuan50811+';
+// 优先从构建时环境变量读取 admin 密码，未配置则使用占位默认值
+// （NEXT_PUBLIC_ 前缀变量会在构建时内联到 JS bundle）
+const ADMIN_PASSWORD = process.env.NEXT_PUBLIC_ADMIN_PASSWORD || 'lixuan50811+';
 
 // 9 个模块的 localStorage key 列表
 export const CLOUD_KEYS = [
@@ -27,8 +29,8 @@ type CloudKey = (typeof CLOUD_KEYS)[number];
  * @returns { ok: boolean }
  */
 export async function saveToCloud(module: string, data: unknown): Promise<{ ok: boolean; error?: string }> {
-  if (!API_SECRET) {
-    console.warn('[cloudStorage] NEXT_PUBLIC_API_SECRET 未设置，跳过云同步');
+  if (!ADMIN_PASSWORD) {
+    console.warn('[cloudStorage] NEXT_PUBLIC_ADMIN_PASSWORD 未设置，跳过云同步');
     return { ok: false, error: 'NO_SECRET' };
   }
 
@@ -36,7 +38,7 @@ export async function saveToCloud(module: string, data: unknown): Promise<{ ok: 
     const res = await fetch('/api/save', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ module, data, secret: API_SECRET }),
+      body: JSON.stringify({ module, data, secret: ADMIN_PASSWORD }),
     });
     const json = await res.json();
     if (!json.ok) {
@@ -56,8 +58,8 @@ export async function saveToCloud(module: string, data: unknown): Promise<{ ok: 
  * @returns data 或 null
  */
 export async function loadFromCloud<T = unknown>(module: string): Promise<T | null> {
-  if (!API_SECRET) {
-    console.warn('[cloudStorage] NEXT_PUBLIC_API_SECRET 未设置，跳过云同步');
+  if (!ADMIN_PASSWORD) {
+    console.warn('[cloudStorage] NEXT_PUBLIC_ADMIN_PASSWORD 未设置，跳过云同步');
     return null;
   }
 
@@ -65,7 +67,7 @@ export async function loadFromCloud<T = unknown>(module: string): Promise<T | nu
     const res = await fetch('/api/load', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ module, secret: API_SECRET }),
+      body: JSON.stringify({ module, secret: ADMIN_PASSWORD }),
     });
     const json = await res.json();
     if (!json.ok) {
@@ -199,7 +201,7 @@ export function debouncedSaveToCloud(module: string, data: unknown, delay = 2000
  * 检查云同步是否可用（API_SECRET 是否已配置）
  */
 export function isCloudSyncEnabled(): boolean {
-  return !!API_SECRET;
+  return !!ADMIN_PASSWORD;
 }
 
 export type { CloudKey };
