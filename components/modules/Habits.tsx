@@ -1,9 +1,10 @@
 'use client'
 
-import { useState, useMemo } from 'react'
+import { useState } from 'react'
 import { Habit, HabitLog, HabitType } from '@/types'
-import { useLocalStorage, uid, todayStr, last7Days, shortDay, weekdayShort } from '@/lib/storage'
+import { useLocalStorage, uid, todayStr, last30Days } from '@/lib/storage'
 import HeatGrid from '@/components/charts/HeatGrid'
+import MonthCalendar from '@/components/charts/MonthCalendar'
 
 const HABIT_COLORS = ['#3B9D4A', '#4A90D9', '#E89B2F', '#9B59B6', '#1ABC9C', '#E74C3C']
 
@@ -19,7 +20,7 @@ export default function Habits() {
   })
 
   const today = todayStr()
-  const days7 = last7Days()
+  const days30 = last30Days()
 
   const handleSubmit = () => {
     if (!form.name.trim()) return
@@ -42,12 +43,13 @@ export default function Habits() {
     setLogs((prev) => prev.filter((l) => l.habitId !== id))
   }
 
-  const getTodayLog = (habitId: string) => {
-    return logs.find((l) => l.habitId === habitId && l.date === today)
+  const getLogForDate = (habitId: string, date: string) => {
+    return logs.find((l) => l.habitId === habitId && l.date === date)
   }
 
-  const handleCheck = (habit: Habit) => {
-    const existing = getTodayLog(habit.id)
+  // Check-in for an arbitrary date (today or a past make-up date)
+  const handleCheck = (habit: Habit, targetDate: string = today) => {
+    const existing = getLogForDate(habit.id, targetDate)
     if (existing) {
       // Toggle off for check type
       if (habit.type === 'check') {
@@ -65,7 +67,7 @@ export default function Habits() {
       const log: HabitLog = {
         id: uid(),
         habitId: habit.id,
-        date: today,
+        date: targetDate,
         value: 1,
         createdAt: Date.now(),
       }
@@ -73,8 +75,8 @@ export default function Habits() {
     }
   }
 
-  const handleValueChange = (habit: Habit, delta: number) => {
-    const existing = getTodayLog(habit.id)
+  const handleValueChange = (habit: Habit, delta: number, targetDate: string = today) => {
+    const existing = getLogForDate(habit.id, targetDate)
     const current = existing?.value || 0
     const newValue = Math.max(0, current + delta)
     if (existing) {
@@ -87,7 +89,7 @@ export default function Habits() {
       const log: HabitLog = {
         id: uid(),
         habitId: habit.id,
-        date: today,
+        date: targetDate,
         value: newValue,
         createdAt: Date.now(),
       }
@@ -118,11 +120,26 @@ export default function Habits() {
   }
 
   const getHeatData = (habitId: string) => {
-    return days7.map((date) => {
+    return days30.map((date) => {
       const log = logs.find((l) => l.habitId === habitId && l.date === date)
       return { date, value: log?.value || 0 }
     })
   }
+
+  // Build calendar data for one habit: date -> DayInfo
+  const buildCalendar = (habit: Habit): Record<string, { date: string; has: boolean; intensity?: number; done?: boolean; badge?: string }> => {
+    const map: Record<string, { date: string; has: boolean; intensity?: number; done?: boolean; badge?: string }> = {}
+    logs
+      .filter((l) => l.habitId === habit.id && l.value > 0)
+      .forEach((l) => {
+        const ratio = habit.target > 0 ? Math.min(1, l.value / habit.target) : 1
+        map[l.date] = { date: l.date, has: true, intensity: ratio, done: l.value >= habit.target }
+      })
+    return map
+  }
+
+  // Which habit is currently being make-up checked (per habit)
+  const [makeupDate, setMakeupDate] = useState<Record<string, string>>({})
 
   return (
     <div className="space-y-4">
@@ -190,10 +207,12 @@ export default function Habits() {
       ) : (
         <div className="space-y-3">
           {habits.map((habit) => {
-            const todayLog = getTodayLog(habit.id)
+            const todayLog = getLogForDate(habit.id, today)
             const streak = calcStreak(habit.id)
             const isDone = todayLog && todayLog.value >= habit.target
             const heatData = getHeatData(habit.id)
+            const calData = buildCalendar(habit)
+            const mDate = makeupDate[habit.id] || today
 
             return (
               <div key={habit.id} className="card group">
@@ -235,7 +254,7 @@ export default function Habits() {
                         color: isDone ? '#fff' : '#555',
                         border: `1px solid ${isDone ? habit.color : '#E5E2DA'}`,
                       }}
-                      onClick={() => handleCheck(habit)}
+                      onClick={() => handleCheck(habit, today)}
                     >
                       {isDone ? '✓ 今日已完成' : '点击打卡'}
                     </button>
@@ -243,7 +262,7 @@ export default function Habits() {
                     <div className="flex items-center gap-2 w-full">
                       <button
                         className="btn btn-ghost px-3"
-                        onClick={() => handleValueChange(habit, -1)}
+                        onClick={() => handleValueChange(habit, -1, today)}
                       >
                         −
                       </button>
@@ -257,7 +276,7 @@ export default function Habits() {
                       </div>
                       <button
                         className="btn btn-ghost px-3"
-                        onClick={() => handleValueChange(habit, 1)}
+                        onClick={() => handleValueChange(habit, 1, today)}
                       >
                         +
                       </button>
@@ -265,11 +284,62 @@ export default function Habits() {
                   )}
                 </div>
 
-                {/* Heat grid */}
+                {/* Make-up (补卡) controls */}
+                <div className="flex flex-wrap items-center gap-2 mb-3 p-2 rounded-sm-clean bg-surface">
+                  <span className="text-xs text-ink-soft">补卡</span>
+                  <input
+                    type="date"
+                    className="input flex-1 min-w-[140px]"
+                    value={mDate}
+                    max={today}
+                    onChange={(e) => setMakeupDate({ ...makeupDate, [habit.id]: e.target.value })}
+                  />
+                  {habit.type === 'check' ? (
+                    <button
+                      className="btn btn-ghost"
+                      onClick={() => mDate && handleCheck(habit, mDate)}
+                    >
+                      为所选日期打卡
+                    </button>
+                  ) : (
+                    <div className="flex items-center gap-1">
+                      <button
+                        className="btn btn-ghost px-3"
+                        onClick={() => mDate && handleValueChange(habit, -1, mDate)}
+                      >
+                        −
+                      </button>
+                      <span className="stat-sm text-xs">
+                        {getLogForDate(habit.id, mDate)?.value || 0}
+                      </span>
+                      <button
+                        className="btn btn-ghost px-3"
+                        onClick={() => mDate && handleValueChange(habit, 1, mDate)}
+                      >
+                        +
+                      </button>
+                    </div>
+                  )}
+                </div>
+
+                {/* 30-day heat grid */}
                 <div>
-                  <div className="label mb-2">近7日</div>
+                  <div className="label mb-2">近30日</div>
                   <HeatGrid data={heatData} max={habit.target} color={habit.color} />
                 </div>
+
+                {/* Calendar */}
+                <details className="mt-3">
+                  <summary className="text-xs text-accent cursor-pointer select-none">查看日历</summary>
+                  <div className="mt-2">
+                    <MonthCalendar
+                      days={calData}
+                      color={habit.color}
+                      onSelect={(d) => setMakeupDate({ ...makeupDate, [habit.id]: d })}
+                      selectedDate={mDate}
+                    />
+                  </div>
+                </details>
               </div>
             )
           })}

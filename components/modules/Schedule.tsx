@@ -3,6 +3,7 @@
 import { useState, useMemo } from 'react'
 import { useLocalStorage, uid, todayStr, formatDate } from '@/lib/storage'
 import type { ScheduleItem, ScheduleStatus, SchedulePriority } from '@/types'
+import MonthCalendar from '@/components/charts/MonthCalendar'
 
 const STATUS_CONFIG: Record<ScheduleStatus, { label: string; bg: string; text: string; border: string }> = {
   todo:  { label: '待办', bg: 'bg-surface-2',  text: 'text-ink-soft',  border: 'border-ink-border' },
@@ -49,6 +50,18 @@ export default function Schedule() {
     const done = items.filter((i) => i.status === 'done').length
     return { todo, doing, done, total: items.length }
   }, [items])
+
+  // Calendar data: date -> DayInfo (aggregate schedule count per date)
+  const calDays = useMemo(() => {
+    const map: Record<string, { date: string; has: boolean; intensity?: number; done?: boolean; badge?: string }> = {}
+    items.forEach((item) => {
+      if (!map[item.date]) map[item.date] = { date: item.date, has: true, intensity: 1 }
+      map[item.date].badge = String((parseInt(map[item.date].badge || '0', 10) || 0) + 1)
+    })
+    return map
+  }, [items])
+
+  const hasFilter = filterDate !== ''
 
   function handleAdd() {
     if (!title.trim()) return
@@ -139,8 +152,18 @@ export default function Schedule() {
         />
       </div>
 
+      {/* Calendar */}
+      <div className="card">
+        <MonthCalendar
+          days={calDays}
+          color="#3B9D4A"
+          onSelect={(d) => setFilterDate(d === filterDate ? '' : d)}
+          selectedDate={filterDate || undefined}
+        />
+      </div>
+
       {/* Filter */}
-      <div className="flex items-center gap-2">
+      <div className="flex flex-wrap items-center gap-2">
         <span className="label">筛选日期</span>
         <input
           type="date"
@@ -148,8 +171,14 @@ export default function Schedule() {
           value={filterDate}
           onChange={(e) => setFilterDate(e.target.value)}
         />
-        {filterDate && (
-          <button className="btn btn-ghost" onClick={() => setFilterDate('')}>清除</button>
+        {hasFilter && (
+          <>
+            <button className="btn btn-ghost" onClick={() => setFilterDate('')}>清除</button>
+            <button className="btn btn-accent" onClick={() => setFilterDate('')}>查看全部日程</button>
+          </>
+        )}
+        {!hasFilter && items.length > 0 && (
+          <span className="text-xs font-mono text-ink-faint ml-auto">{items.length} 条日程</span>
         )}
       </div>
 

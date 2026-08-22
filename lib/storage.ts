@@ -145,6 +145,19 @@ export function last7Days(): string[] {
   return days
 }
 
+export function last30Days(): string[] {
+  const days: string[] = []
+  for (let i = 29; i >= 0; i--) {
+    const d = new Date()
+    d.setDate(d.getDate() - i)
+    const y = d.getFullYear()
+    const m = String(d.getMonth() + 1).padStart(2, '0')
+    const day = String(d.getDate()).padStart(2, '0')
+    days.push(`${y}-${m}-${day}`)
+  }
+  return days
+}
+
 export function shortDay(dateStr: string): string {
   const d = new Date(dateStr + 'T00:00:00')
   return String(d.getDate())
