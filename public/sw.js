@@ -1,6 +1,6 @@
 /* 生活工作台 Service Worker —— 零依赖、缓存优先、仅缓存静态资源 */
 
-const CACHE_NAME = 'life-dashboard-static-v1';
+const CACHE_NAME = 'life-dashboard-static-v2';
 
 /* install 阶段预缓存的核心静态资源 */
 const PRECACHE_URLS = [
@@ -51,29 +51,44 @@ self.addEventListener('fetch', (event) => {
   /* 仅处理同源请求 */
   if (url.origin !== self.location.origin) return;
 
+/* 导航请求（HTML 页面）：网络优先 —— 每次部署后用户刷新即可看到最新内容，
+   网络失败时才回退缓存（保证离线可用） */
+if (request.mode === 'navigate') {
   event.respondWith(
-    caches.match(request).then((cached) => {
-      /* 缓存命中：直接返回（缓存优先） */
-      if (cached) return cached;
-
-      /* 缓存未命中：请求网络，成功后写入缓存（仅静态资源） */
-      return fetch(request)
-        .then((response) => {
-          if (response && response.status === 200 && response.type === 'basic') {
-            const cloned = response.clone();
-            caches
-              .open(CACHE_NAME)
-              .then((cache) => cache.put(request, cloned));
-          }
-          return response;
-        })
-        .catch(() => {
-          /* 离线兜底：导航请求回退到已预缓存的首页 */
-          if (request.mode === 'navigate') {
-            return caches.match('/');
-          }
-          return undefined;
-        });
-    })
+    fetch(request)
+      .then((response) => {
+        if (response && response.status === 200 && response.type === 'basic') {
+          const cloned = response.clone();
+          caches.open(CACHE_NAME).then((cache) => cache.put(request, cloned));
+        }
+        return response;
+      })
+      .catch(() =>
+        /* 离线兜底：回退到预缓存的首页 */
+        caches.match('/').then((cached) => cached || caches.match(request))
+      )
   );
+  return;
+}
+
+/* 静态资源（含 hash 文件名）：缓存优先 */
+event.respondWith(
+  caches.match(request).then((cached) => {
+    /* 缓存命中：直接返回 */
+    if (cached) return cached;
+
+    /* 缓存未命中：请求网络，成功后写入缓存 */
+    return fetch(request)
+      .then((response) => {
+        if (response && response.status === 200 && response.type === 'basic') {
+          const cloned = response.clone();
+          caches
+            .open(CACHE_NAME)
+            .then((cache) => cache.put(request, cloned));
+        }
+        return response;
+      })
+      .catch(() => undefined);
+  })
+);
 });
