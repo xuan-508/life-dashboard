@@ -2,8 +2,7 @@
 
 import { useState } from 'react'
 import { Habit, HabitLog, HabitType } from '@/types'
-import { useLocalStorage, uid, todayStr, last30Days } from '@/lib/storage'
-import HeatGrid from '@/components/charts/HeatGrid'
+import { useLocalStorage, uid, todayStr } from '@/lib/storage'
 import MonthCalendar from '@/components/charts/MonthCalendar'
 
 const HABIT_COLORS = ['#3B9D4A', '#4A90D9', '#E89B2F', '#9B59B6', '#1ABC9C', '#E74C3C']
@@ -20,7 +19,6 @@ export default function Habits() {
   })
 
   const today = todayStr()
-  const days30 = last30Days()
 
   const handleSubmit = () => {
     if (!form.name.trim()) return
@@ -119,13 +117,6 @@ export default function Habits() {
     return streak
   }
 
-  const getHeatData = (habitId: string) => {
-    return days30.map((date) => {
-      const log = logs.find((l) => l.habitId === habitId && l.date === date)
-      return { date, value: log?.value || 0 }
-    })
-  }
-
   // Build calendar data for one habit: date -> DayInfo
   const buildCalendar = (habit: Habit): Record<string, { date: string; has: boolean; intensity?: number; done?: boolean; badge?: string }> => {
     const map: Record<string, { date: string; has: boolean; intensity?: number; done?: boolean; badge?: string }> = {}
@@ -210,7 +201,6 @@ export default function Habits() {
             const todayLog = getLogForDate(habit.id, today)
             const streak = calcStreak(habit.id)
             const isDone = todayLog && todayLog.value >= habit.target
-            const heatData = getHeatData(habit.id)
             const calData = buildCalendar(habit)
             const mDate = makeupDate[habit.id] || today
 
@@ -322,24 +312,15 @@ export default function Habits() {
                   )}
                 </div>
 
-                {/* 30-day heat grid */}
-                <div>
-                  <div className="label mb-2">近30日</div>
-                  <HeatGrid data={heatData} max={habit.target} color={habit.color} />
-                </div>
-
                 {/* Calendar */}
-                <details className="mt-3">
-                  <summary className="text-xs text-accent cursor-pointer select-none">查看日历</summary>
-                  <div className="mt-2">
-                    <MonthCalendar
-                      days={calData}
-                      color={habit.color}
-                      onSelect={(d) => setMakeupDate({ ...makeupDate, [habit.id]: d })}
-                      selectedDate={mDate}
-                    />
-                  </div>
-                </details>
+                <div className="mt-3">
+                  <MonthCalendar
+                    days={calData}
+                    color={habit.color}
+                    onSelect={(d) => setMakeupDate({ ...makeupDate, [habit.id]: d })}
+                    selectedDate={mDate}
+                  />
+                </div>
               </div>
             )
           })}
