@@ -1,8 +1,9 @@
 'use client'
 
-import { useState, useMemo } from 'react'
+import { useState, useMemo, useRef, useEffect } from 'react'
 import { AccountRecord } from '@/types'
 import { useLocalStorage, uid, todayStr, monthStr, formatMoney } from '@/lib/storage'
+import { exportAccountsJSON, exportAccountsCSV, importAccountsJSON, importAccountsCSV } from '@/lib/exportImport'
 import BarChart from '@/components/charts/BarChart'
 import DonutChart from '@/components/charts/DonutChart'
 import KPICard from '@/components/ui/KPICard'
@@ -42,6 +43,12 @@ export default function Accounting() {
   const [showForm, setShowForm] = useState(false)
   const [filterType, setFilterType] = useState<'all' | 'income' | 'expense'>('all')
   const [filterCategory, setFilterCategory] = useState<string>('all')
+  const [showImportMenu, setShowImportMenu] = useState(false)
+  const [pendingFile, setPendingFile] = useState<File | null>(null)
+  const [importMode, setImportMode] = useState<'append' | 'overwrite'>('append')
+  const [importMsg, setImportMsg] = useState<string>('')
+  const fileInputRef = useRef<HTMLInputElement>(null)
+  const menuRef = useRef<HTMLDivElement>(null)
   const [form, setForm] = useState({
     type: 'expense' as 'income' | 'expense',
     amount: '',
@@ -115,6 +122,62 @@ export default function Accounting() {
     setRecords((prev) => prev.filter((r) => r.id !== id))
   }
 
+  // 导入/导出
+  const handleFileChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0]
+    if (!file) return
+    setPendingFile(file)
+    setImportMsg('')
+    setShowImportMenu(false)
+  }
+
+  const handleConfirmImport = async () => {
+    if (!pendingFile) return
+    try {
+      const isCSV = pendingFile.name.toLowerCase().endsWith('.csv')
+      const result = isCSV
+        ? await importAccountsCSV(pendingFile)
+        : await importAccountsJSON(pendingFile)
+
+      setRecords((prev) => {
+        if (importMode === 'overwrite') {
+          return result.records
+        }
+        // 追加：去重（以 id 为准）
+        const existingIds = new Set(prev.map((r) => r.id))
+        const newRecords = result.records.filter((r) => !existingIds.has(r.id))
+        return [...newRecords, ...prev].sort(
+          (a, b) => b.date.localeCompare(a.date) || b.createdAt - a.createdAt
+        )
+      })
+
+      setImportMsg(`成功导入 ${result.imported} 条账单`)
+      setPendingFile(null)
+      if (fileInputRef.current) fileInputRef.current.value = ''
+    } catch (err) {
+      setImportMsg(`导入失败：${(err as Error).message}`)
+    }
+  }
+
+  // 点击外部关闭导入菜单
+  useEffect(() => {
+    if (!showImportMenu) return
+    const handleClick = (e: MouseEvent) => {
+      if (menuRef.current && !menuRef.current.contains(e.target as Node)) {
+        setShowImportMenu(false)
+      }
+    }
+    document.addEventListener('mousedown', handleClick)
+    return () => document.removeEventListener('mousedown', handleClick)
+  }, [showImportMenu])
+
+  // 3 秒后自动清除导入提示
+  useEffect(() => {
+    if (!importMsg) return
+    const timer = setTimeout(() => setImportMsg(''), 3000)
+    return () => clearTimeout(timer)
+  }, [importMsg])
+
   const categories = form.type === 'expense' ? EXPENSE_CATEGORIES : INCOME_CATEGORIES
 
   return (
@@ -160,7 +223,7 @@ export default function Accounting() {
         </div>
       </div>
 
-      {/* Filter + Add */}
+      {/* Filter + Add + Import/Export */}
       <div className="flex flex-wrap items-center gap-2">
         <button
           className="btn btn-accent"
@@ -168,6 +231,55 @@ export default function Accounting() {
         >
           {showForm ? '取消' : '+ 记一笔'}
         </button>
+
+        <div className="relative" ref={menuRef}>
+          <button
+            className="btn btn-secondary"
+            onClick={() => setShowImportMenu((v) => !v)}
+            title="导入/导出"
+          >
+            ⇅ 导入/导出
+          </button>
+          {showImportMenu && (
+            <div className="absolute left-0 top-full z-20 mt-1 w-44 rounded-lg border border-ink-border bg-surface-1 p-1 shadow-lg">
+              <button
+                className="flex w-full items-center gap-2 rounded-md px-3 py-2 text-left text-sm hover:bg-surface-2"
+                onClick={() => {
+                  exportAccountsJSON(records)
+                  setShowImportMenu(false)
+                }}
+              >
+                <span>📥</span> 导出 JSON
+              </button>
+              <button
+                className="flex w-full items-center gap-2 rounded-md px-3 py-2 text-left text-sm hover:bg-surface-2"
+                onClick={() => {
+                  exportAccountsCSV(records)
+                  setShowImportMenu(false)
+                }}
+              >
+                <span>📄</span> 导出 CSV
+              </button>
+              <div className="my-1 border-t border-ink-border" />
+              <button
+                className="flex w-full items-center gap-2 rounded-md px-3 py-2 text-left text-sm hover:bg-surface-2"
+                onClick={() => {
+                  fileInputRef.current?.click()
+                }}
+              >
+                <span>📤</span> 导入 JSON/CSV
+              </button>
+            </div>
+          )}
+          <input
+            ref={fileInputRef}
+            type="file"
+            accept=".json,.csv"
+            className="hidden"
+            onChange={handleFileChange}
+          />
+        </div>
+
         <div className="flex gap-1">
           {(['all', 'expense', 'income'] as const).map((t) => (
             <button
@@ -190,6 +302,61 @@ export default function Accounting() {
           ))}
         </select>
       </div>
+
+      {/* Import Confirmation */}
+      {pendingFile && (
+        <div className="card space-y-3">
+          <div className="text-sm font-medium">确认导入账单</div>
+          <div className="text-sm text-ink-faint">已选择文件：{pendingFile.name}</div>
+          <div className="flex flex-wrap gap-4 text-sm">
+            <label className="flex items-center gap-2 cursor-pointer">
+              <input
+                type="radio"
+                className="accent-accent"
+                checked={importMode === 'append'}
+                onChange={() => setImportMode('append')}
+              />
+              追加到现有记录
+            </label>
+            <label className="flex items-center gap-2 cursor-pointer">
+              <input
+                type="radio"
+                className="accent-accent"
+                checked={importMode === 'overwrite'}
+                onChange={() => setImportMode('overwrite')}
+              />
+              覆盖现有记录
+            </label>
+          </div>
+          <div className="flex gap-2">
+            <button className="btn btn-accent" onClick={handleConfirmImport}>
+              确认导入
+            </button>
+            <button
+              className="btn btn-secondary"
+              onClick={() => {
+                setPendingFile(null)
+                if (fileInputRef.current) fileInputRef.current.value = ''
+              }}
+            >
+              取消
+            </button>
+          </div>
+        </div>
+      )}
+
+      {/* Import Feedback */}
+      {importMsg && (
+        <div
+          className={`rounded-lg px-3 py-2 text-sm ${
+            importMsg.startsWith('成功')
+              ? 'bg-green-100 text-green-800 dark:bg-green-900/30 dark:text-green-200'
+              : 'bg-red-100 text-red-800 dark:bg-red-900/30 dark:text-red-200'
+          }`}
+        >
+          {importMsg}
+        </div>
+      )}
 
       {/* Form */}
       {showForm && (

@@ -11,6 +11,7 @@ export interface KPICardProps {
   progress?: number
   trend?: { value: string; up?: boolean }
   className?: string
+  onClick?: () => void
 }
 
 export default function KPICard({
@@ -22,11 +23,26 @@ export default function KPICard({
   progress,
   trend,
   className = '',
+  onClick,
 }: KPICardProps) {
   const hasProgress = progress !== undefined && progress >= 0
+  const clickableClass = onClick
+    ? 'cursor-pointer hover:ring-1 hover:ring-accent/40 active:scale-[0.99]'
+    : ''
 
   return (
-    <div className={`relative flex flex-col justify-between overflow-hidden rounded-card border border-ink-border bg-surface p-5 shadow-sm transition-shadow hover:shadow-md ${className}`}>
+    <div
+      role={onClick ? 'button' : undefined}
+      tabIndex={onClick ? 0 : undefined}
+      onClick={onClick}
+      onKeyDown={(e) => {
+        if (onClick && (e.key === 'Enter' || e.key === ' ')) {
+          e.preventDefault()
+          onClick()
+        }
+      }}
+      className={`relative flex flex-col justify-between overflow-hidden rounded-card border border-ink-border bg-surface p-5 shadow-sm transition-shadow hover:shadow-md ${clickableClass} ${className}`}
+    >
       <div className="flex items-start justify-between">
         <div className="min-w-0 flex-1">
           <div className="text-xs font-medium uppercase tracking-wide text-ink-faint">{label}</div>

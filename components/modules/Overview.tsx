@@ -9,6 +9,7 @@ interface OverviewProps {
   habitLogs: HabitLog[]
   schedules: ScheduleItem[]
   shopping: ShoppingItem[]
+  onNavigate?: (tab: string) => void
 }
 
 const ICONS = {
@@ -39,7 +40,7 @@ const ICONS = {
   ),
 }
 
-export default function Overview({ accounts, habitLogs, schedules, shopping }: OverviewProps) {
+export default function Overview({ accounts, habitLogs, schedules, shopping, onNavigate }: OverviewProps) {
   const today = todayStr()
   const todayAccounts = accounts.filter((a) => a.date === today)
   const todayIncome = todayAccounts.filter((a) => a.type === 'income').reduce((s, a) => s + a.amount, 0)
@@ -72,6 +73,7 @@ export default function Overview({ accounts, habitLogs, schedules, shopping }: O
           color="#14B8A6"
           icon={ICONS.income}
           trend={{ value: '0.0%', up: true }}
+          onClick={() => onNavigate?.('accounting')}
         />
         <KPICard
           label="今日支出"
@@ -80,6 +82,7 @@ export default function Overview({ accounts, habitLogs, schedules, shopping }: O
           color="#0D9488"
           icon={ICONS.expense}
           trend={{ value: '0.0%', up: false }}
+          onClick={() => onNavigate?.('accounting')}
         />
         <KPICard
           label="习惯打卡"
@@ -89,6 +92,7 @@ export default function Overview({ accounts, habitLogs, schedules, shopping }: O
           icon={ICONS.habit}
           progress={todayHabits.length > 0 ? 100 : 0}
           trend={{ value: '0', up: true }}
+          onClick={() => onNavigate?.('habits')}
         />
         <KPICard
           label="今日日程"
@@ -98,6 +102,7 @@ export default function Overview({ accounts, habitLogs, schedules, shopping }: O
           icon={ICONS.schedule}
           progress={scheduleProgress}
           trend={{ value: '0', up: true }}
+          onClick={() => onNavigate?.('schedule')}
         />
         <KPICard
           label="待买清单"
@@ -106,6 +111,7 @@ export default function Overview({ accounts, habitLogs, schedules, shopping }: O
           color="#8B5CF6"
           icon={ICONS.shopping}
           trend={{ value: '0', up: false }}
+          onClick={() => onNavigate?.('shopping')}
         />
       </div>
     </section>

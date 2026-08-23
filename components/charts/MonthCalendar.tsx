@@ -145,9 +145,22 @@ export default function MonthCalendar({ days, color = '#3B9D4A', onSelect, selec
               }}
               title={date}
             >
-              <span className={`leading-tight pl-0.5 ${isToday ? 'font-bold' : ''}`} style={{ color: '#555' }}>
-                {dayNum}
-              </span>
+              <div className="flex items-start justify-between">
+                <span className={`leading-tight pl-0.5 ${isToday ? 'font-bold' : ''}`} style={{ color: '#555' }}>
+                  {dayNum}
+                </span>
+                {/* Habit heatmap dot */}
+                {info?.has && (
+                  <div
+                    className="w-3 h-3 rounded-sm shrink-0 mt-px"
+                    style={{
+                      backgroundColor: color,
+                      opacity: info.intensity ?? 1,
+                    }}
+                    title={info.done ? '已完成' : '有记录'}
+                  />
+                )}
+              </div>
               <div className="flex flex-col gap-px flex-1 min-h-0">
                 {shown.map((s) => (
                   <div

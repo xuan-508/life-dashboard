@@ -285,8 +285,8 @@ export default function Home() {
       {/* 移动端侧边栏抽屉 */}
       {mobileMenuOpen && (
         <>
-          <div className='fixed inset-0 z-50 bg-black/40 lg:hidden' onClick={() => setMobileMenuOpen(false)} />
-          <div className='fixed left-0 top-0 z-50 h-screen w-60 lg:hidden'>
+          <div className='fixed inset-0 z-[60] bg-black/40 lg:hidden' onClick={() => setMobileMenuOpen(false)} />
+          <div className='fixed left-0 top-0 z-[70] h-screen w-60 overflow-hidden bg-surface shadow-2xl lg:hidden'>
             <Sidebar
               items={sidebarItems}
               active={activeTab}
@@ -307,11 +307,9 @@ export default function Home() {
           title={currentTab.label}
           updatedAt={updatedAt}
           search={<SearchInput value={search} onChange={setSearch} placeholder='搜索内容…' />}
+          onMenuClick={() => setMobileMenuOpen(true)}
           extra={
             <>
-              <div className='lg:hidden'>
-                <IconButton icon='M4 6h16M4 12h16M4 18h16' onClick={() => setMobileMenuOpen(true)} title='菜单' />
-              </div>
               <IconButton
                 icon='M15 17h5l-1.405-1.405A2.032 2.032 0 0118 14.158V11a6.002 6.002 0 00-4-5.659V5a2 2 0 10-4 0v.341C7.67 6.165 6 8.388 6 11v3.159c0 .538-.214 1.055-.595 1.436L4 17h5m6 0v1a3 3 0 11-6 0v-1m6 0H9'
                 title='通知'
@@ -438,6 +436,7 @@ export default function Home() {
               habitLogs={habitLogs}
               schedules={schedules}
               shopping={shopping}
+              onNavigate={(tab) => setActiveTab(tab as TabKey)}
             />
           )}
           {activeTab === 'accounting' && <Accounting />}

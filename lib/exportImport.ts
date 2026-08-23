@@ -285,6 +285,119 @@ export function importFromCSV(file: File): Promise<{ imported: number; keys: str
   })
 }
 
+// ============ 账单模块专用导出/导入 ============
+
+import type { AccountRecord } from '@/types'
+
+const ACCOUNTS_KEY = 'ld_accounts'
+
+/** 导出账单为JSON */
+export function exportAccountsJSON(records: AccountRecord[]) {
+  const exportTime = new Date().toISOString()
+  const payload = {
+    _meta: { app: 'life-dashboard', module: 'accounts', version: 1, exportTime, count: records.length },
+    data: records,
+  }
+  const blob = new Blob([JSON.stringify(payload, null, 2)], { type: 'application/json' })
+  const url = URL.createObjectURL(blob)
+  const a = document.createElement('a')
+  a.href = url
+  a.download = `accounts-export-${exportTime.slice(0, 10)}.json`
+  document.body.appendChild(a)
+  a.click()
+  document.body.removeChild(a)
+  URL.revokeObjectURL(url)
+}
+
+/** 从JSON文件导入账单，返回 { imported: number; records: AccountRecord[] } */
+export function importAccountsJSON(file: File): Promise<{ imported: number; records: AccountRecord[] }> {
+  return new Promise((resolve, reject) => {
+    const reader = new FileReader()
+    reader.onload = () => {
+      try {
+        const parsed = JSON.parse(reader.result as string)
+        const data = parsed.data ?? parsed
+        if (!Array.isArray(data)) {
+          throw new Error('文件格式不正确：数据应为数组')
+        }
+        const records = data
+          .map((row: Record<string, unknown>): AccountRecord => ({
+            id: String(row.id || `acct_${Date.now()}_${Math.random().toString(36).slice(2, 8)}`),
+            type: row.type === 'income' ? 'income' : 'expense',
+            amount: Number(row.amount) || 0,
+            category: String(row.category || '其他'),
+            note: String(row.note || ''),
+            date: String(row.date || new Date().toISOString().slice(0, 10)),
+            createdAt: Number(row.createdAt) || Date.now(),
+            updatedAt: row.updatedAt ? Number(row.updatedAt) : undefined,
+          }))
+          .filter((r) => r.amount > 0)
+        resolve({ imported: records.length, records })
+      } catch (err) {
+        reject(new Error('无法解析JSON文件: ' + (err as Error).message))
+      }
+    }
+    reader.onerror = () => reject(new Error('文件读取失败'))
+    reader.readAsText(file)
+  })
+}
+
+/** 导出账单为CSV */
+export function exportAccountsCSV(records: AccountRecord[]) {
+  const exportTime = new Date().toISOString()
+  const rows = records.map((r) => ({
+    id: r.id,
+    type: r.type,
+    amount: r.amount,
+    category: r.category,
+    note: r.note,
+    date: r.date,
+    createdAt: r.createdAt,
+    updatedAt: r.updatedAt ?? '',
+  }))
+  const csv = toCSV(rows)
+  const blob = new Blob(['\ufeff' + csv], { type: 'text/csv;charset=utf-8' })
+  const url = URL.createObjectURL(blob)
+  const a = document.createElement('a')
+  a.href = url
+  a.download = `accounts-export-${exportTime.slice(0, 10)}.csv`
+  document.body.appendChild(a)
+  a.click()
+  document.body.removeChild(a)
+  URL.revokeObjectURL(url)
+}
+
+/** 从CSV文件导入账单 */
+export function importAccountsCSV(file: File): Promise<{ imported: number; records: AccountRecord[] }> {
+  return new Promise((resolve, reject) => {
+    const reader = new FileReader()
+    reader.onload = () => {
+      try {
+        const text = (reader.result as string).replace(/^\ufeff/, '')
+        const rows = fromCSV(text)
+        if (rows.length === 0) throw new Error('CSV为空或格式不正确')
+        const records = rows
+          .map((row): AccountRecord => ({
+            id: String(row.id || `acct_${Date.now()}_${Math.random().toString(36).slice(2, 8)}`),
+            type: row.type === 'income' ? 'income' : 'expense',
+            amount: Number(row.amount) || 0,
+            category: String(row.category || '其他'),
+            note: String(row.note || ''),
+            date: String(row.date || new Date().toISOString().slice(0, 10)),
+            createdAt: Number(row.createdAt) || Date.now(),
+            updatedAt: row.updatedAt ? Number(row.updatedAt) : undefined,
+          }))
+          .filter((r) => r.amount > 0)
+        resolve({ imported: records.length, records })
+      } catch (err) {
+        reject(new Error('CSV解析失败: ' + (err as Error).message))
+      }
+    }
+    reader.onerror = () => reject(new Error('文件读取失败'))
+    reader.readAsText(file)
+  })
+}
+
 // ============ 清空数据 ============
 
 /** 清空所有 ld_ 前缀的数据 */
