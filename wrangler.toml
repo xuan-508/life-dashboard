@@ -1,5 +1,6 @@
 name = "life-dashboard"
 compatibility_date = "2024-08-18"
+pages_build_output_dir = "out"
 
 # KV namespace 绑定
 # 在 Cloudflare Dashboard 中创建 KV namespace 后，将真实 ID 填入下方 id 字段
