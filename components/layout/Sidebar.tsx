@@ -17,6 +17,11 @@ export interface SidebarProps {
   footer?: ReactNode
   collapsed?: boolean
   onToggleCollapse?: () => void
+  /**
+   * 为 true 时表示作为移动端抽屉内容渲染，不使用 fixed / hidden lg:flex，
+   * 而是占满父容器 flex 高度，宽度由外部抽屉控制。
+   */
+  mobile?: boolean
 }
 
 export default function Sidebar({
@@ -27,12 +32,17 @@ export default function Sidebar({
   footer,
   collapsed = false,
   onToggleCollapse,
+  mobile = false,
 }: SidebarProps) {
   return (
     <aside
-      className={`fixed left-0 top-0 z-50 hidden h-screen flex-col border-r border-ink-border bg-surface transition-all duration-300 lg:flex ${
-        collapsed ? 'w-16' : 'w-60'
-      }`}
+      className={
+        mobile
+          ? 'flex h-full w-full flex-col bg-surface'
+          : `fixed left-0 top-0 z-50 hidden h-screen flex-col border-r border-ink-border bg-surface transition-all duration-300 lg:flex ${
+              collapsed ? 'w-16' : 'w-60'
+            }`
+      }
     >
       <div
         className={`flex h-16 items-center justify-between border-b border-ink-border px-3 ${

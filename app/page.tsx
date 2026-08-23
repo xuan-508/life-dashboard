@@ -282,24 +282,30 @@ export default function Home() {
         />
       </div>
 
-      {/* 移动端侧边栏抽屉 */}
-      {mobileMenuOpen && (
-        <>
-          <div className='fixed inset-0 z-[60] bg-black/40 lg:hidden' onClick={() => setMobileMenuOpen(false)} />
-          <div className='fixed left-0 top-0 z-[70] h-screen w-60 overflow-hidden bg-surface shadow-2xl lg:hidden'>
-            <Sidebar
-              items={sidebarItems}
-              active={activeTab}
-              onChange={(key) => {
-                setActiveTab(key as TabKey)
-                setMobileMenuOpen(false)
-              }}
-              logo={logoNode}
-              footer={footerNode}
-            />
-          </div>
-        </>
-      )}
+      {/* 移动端侧边栏抽屉：fixed 抽屉 + 遮罩，始终挂载，translate-x 控制显示 */}
+      <aside
+        className={`fixed left-0 top-0 z-[70] h-screen w-60 flex flex-col border-r border-ink-border bg-surface shadow-2xl transition-transform duration-300 lg:hidden ${
+          mobileMenuOpen ? 'translate-x-0' : '-translate-x-full'
+        }`}
+      >
+        <Sidebar
+          mobile
+          items={sidebarItems}
+          active={activeTab}
+          onChange={(key) => {
+            setActiveTab(key as TabKey)
+            setMobileMenuOpen(false)
+          }}
+          logo={logoNode}
+          footer={footerNode}
+        />
+      </aside>
+      <div
+        className={`fixed inset-0 z-[60] bg-black/40 transition-opacity duration-300 lg:hidden ${
+          mobileMenuOpen ? 'pointer-events-auto opacity-100' : 'pointer-events-none opacity-0'
+        }`}
+        onClick={() => setMobileMenuOpen(false)}
+      />
 
       <div className={`flex min-h-screen flex-col transition-all duration-300 ${sidebarCollapsed ? 'lg:pl-16' : 'lg:pl-60'}`}>
         {/* 顶部工具栏 */}
