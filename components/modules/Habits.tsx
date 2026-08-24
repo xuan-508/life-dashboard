@@ -5,7 +5,7 @@ import { Habit, HabitLog, HabitType } from '@/types'
 import { useLocalStorage, uid, todayStr } from '@/lib/storage'
 import MonthCalendar from '@/components/charts/MonthCalendar'
 
-const HABIT_COLORS = ['#3B9D4A', '#4A90D9', '#E89B2F', '#9B59B6', '#1ABC9C', '#E74C3C']
+const HABIT_COLORS = ['#D946EF', '#A855F7', '#EC4899', '#F472B6', '#8B5CF6', '#C084FC']
 
 export default function Habits() {
   const [habits, setHabits] = useLocalStorage<Habit[]>('ld_habits', [])
@@ -241,8 +241,8 @@ export default function Habits() {
                       className="btn w-full"
                       style={{
                         backgroundColor: isDone ? habit.color : 'transparent',
-                        color: isDone ? '#fff' : '#555',
-                        border: `1px solid ${isDone ? habit.color : '#E5E2DA'}`,
+                        color: isDone ? '#fff' : '#7C3AED',
+                        border: `1px solid ${isDone ? habit.color : '#E9D5FF'}`,
                       }}
                       onClick={() => handleCheck(habit, today)}
                     >
@@ -257,7 +257,7 @@ export default function Habits() {
                         −
                       </button>
                       <div className="flex-1 text-center">
-                        <span className="stat-sm" style={{ color: isDone ? habit.color : '#1A1A1A' }}>
+                        <span className="stat-sm" style={{ color: isDone ? habit.color : '#4B1D6B' }}>
                           {todayLog?.value || 0}
                         </span>
                         <span className="text-xs font-mono text-ink-faint ml-1">
@@ -275,7 +275,7 @@ export default function Habits() {
                 </div>
 
                 {/* Make-up (补卡) controls */}
-                <div className="flex flex-wrap items-center gap-2 mb-3 p-2 rounded-sm-clean bg-surface">
+                <div className="flex flex-wrap items-center gap-2 mb-3 p-2 rounded-sm-clean bg-white/50 border border-white/60 backdrop-blur-sm">
                   <span className="text-xs text-ink-soft">补卡</span>
                   <input
                     type="date"

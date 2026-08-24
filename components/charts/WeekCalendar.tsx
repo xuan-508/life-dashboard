@@ -35,9 +35,9 @@ export interface WeekCalendarProps {
 
 const WEEK_LABELS = ['一', '二', '三', '四', '五', '六', '日']
 const PRIORITY_DOT: Record<string, string> = {
-  high: '#D9534F',
-  medium: '#E89B2F',
-  low: '#999999',
+  high: '#EC4899',
+  medium: '#A855F7',
+  low: '#B9A4C7',
 }
 
 function toDateStr(d: Date): string {
@@ -58,10 +58,10 @@ export default function WeekCalendar({
   selectedDate,
   onSelect,
   onDropDate,
-  color = '#14B8A6',
-  incomeColor = '#2DD4BF',
-  expenseColor = '#D9534F',
-  fitnessColor = '#4A90D9',
+  color = '#D946EF',
+  incomeColor = '#A855F7',
+  expenseColor = '#EC4899',
+  fitnessColor = '#8B5CF6',
   weekOffset = 0,
   onWeekChange,
 }: WeekCalendarProps) {

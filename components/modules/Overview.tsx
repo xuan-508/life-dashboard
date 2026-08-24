@@ -60,7 +60,7 @@ export default function Overview({ accounts, habitLogs, schedules, shopping, onN
     <section className="space-y-5">
       <div className="flex items-center justify-between">
         <h2 className="text-lg font-semibold tracking-tight text-ink">今日概览</h2>
-        <span className="rounded-full bg-surface px-3 py-1 text-xs font-medium text-ink-soft shadow-sm">
+        <span className="rounded-full border border-white/60 bg-white/50 px-3 py-1 text-xs font-medium text-ink-soft shadow-soft backdrop-blur-sm">
           {formatDate(today)}
         </span>
       </div>
@@ -70,7 +70,7 @@ export default function Overview({ accounts, habitLogs, schedules, shopping, onN
           label="今日收入"
           value={`¥${formatMoney(todayIncome)}`}
           sub={todayIncome > 0 ? `${todayAccounts.filter((a) => a.type === 'income').length} 笔收入` : '暂无收入'}
-          color="#14B8A6"
+          color="#D946EF"
           icon={ICONS.income}
           trend={{ value: '0.0%', up: true }}
           onClick={() => onNavigate?.('accounting')}
@@ -79,7 +79,7 @@ export default function Overview({ accounts, habitLogs, schedules, shopping, onN
           label="今日支出"
           value={`¥${formatMoney(todayExpense)}`}
           sub={todayExpense > 0 ? `${todayAccounts.filter((a) => a.type === 'expense').length} 笔支出` : '暂无支出'}
-          color="#0D9488"
+          color="#A855F7"
           icon={ICONS.expense}
           trend={{ value: '0.0%', up: false }}
           onClick={() => onNavigate?.('accounting')}
@@ -88,7 +88,7 @@ export default function Overview({ accounts, habitLogs, schedules, shopping, onN
           label="习惯打卡"
           value={todayHabits.length}
           sub={todayHabits.length > 0 ? '今日已打卡' : '今日未打卡'}
-          color="#2DD4BF"
+          color="#EC4899"
           icon={ICONS.habit}
           progress={todayHabits.length > 0 ? 100 : 0}
           trend={{ value: '0', up: true }}
@@ -98,7 +98,7 @@ export default function Overview({ accounts, habitLogs, schedules, shopping, onN
           label="今日日程"
           value={`${doneSchedules.length}/${todaySchedules.length}`}
           sub={pendingSchedules.length > 0 ? `${pendingSchedules.length} 项待完成` : '全部完成'}
-          color="#F59E0B"
+          color="#F472B6"
           icon={ICONS.schedule}
           progress={scheduleProgress}
           trend={{ value: '0', up: true }}

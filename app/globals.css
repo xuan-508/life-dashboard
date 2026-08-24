@@ -8,8 +8,9 @@
     -moz-osx-font-smoothing: grayscale;
   }
   body {
-    background-color: #F4F6F8;
-    color: #1F2937;
+    background: linear-gradient(135deg, #F3E8FF 0%, #FCE7F3 50%, #E0E7FF 100%);
+    background-attachment: fixed;
+    color: #4B1D6B;
     font-feature-settings: "tnum";
   }
   * {
@@ -19,40 +20,46 @@
 
 @layer components {
   .card {
-    @apply bg-surface border border-ink-border rounded-card p-5;
+    @apply bg-white/60 border border-white/80 rounded-card p-5 shadow-soft backdrop-blur-md;
   }
   .card-sm {
-    @apply bg-surface border border-ink-border rounded-sm-clean p-4;
+    @apply bg-white/60 border border-white/80 rounded-sm-clean p-4 shadow-soft backdrop-blur-md;
   }
   .label {
-    @apply font-mono text-label uppercase tracking-wider text-ink-faint;
+    @apply font-mono text-label uppercase tracking-wider text-purple-400;
   }
   .stat {
-    @apply font-mono text-stat text-ink;
+    @apply font-mono text-stat text-purple-700;
   }
   .stat-sm {
-    @apply font-mono text-stat-sm text-ink;
+    @apply font-mono text-stat-sm text-purple-600;
   }
   .btn {
-    @apply px-3 py-1.5 text-sm font-medium rounded-sm-clean transition-colors cursor-pointer;
+    @apply px-3 py-1.5 text-sm font-medium rounded-xl transition-all cursor-pointer;
   }
   .btn-accent {
-    @apply bg-accent text-white hover:bg-accent-dark;
+    @apply bg-gradient-to-r from-purple-400 to-pink-400 text-white shadow-soft hover:shadow-md hover:brightness-105;
   }
   .btn-ghost {
-    @apply border border-ink-border text-ink-soft hover:bg-surface-2;
+    @apply bg-white/50 border border-white/80 text-purple-600 hover:bg-white/80 backdrop-blur-sm;
+  }
+  .btn-secondary {
+    @apply bg-white/60 border border-white/80 text-purple-700 hover:bg-white/90 backdrop-blur-sm;
+  }
+  .bg-surface-1 {
+    @apply bg-white/70 backdrop-blur-md;
   }
   .input {
-    @apply w-full bg-surface-2 border border-ink-border rounded-sm-clean px-3 py-2 text-sm text-ink focus:outline-none focus:border-accent;
+    @apply w-full bg-white/70 border border-white/90 rounded-xl px-3 py-2 text-sm text-purple-700 placeholder-purple-300 focus:outline-none focus:ring-2 focus:ring-purple-200 focus:border-purple-300 backdrop-blur-sm;
   }
   .chip {
-    @apply inline-flex items-center gap-1 px-2 py-0.5 text-xs font-mono rounded-sm-clean border;
+    @apply inline-flex items-center gap-1 px-2.5 py-1 text-xs font-medium rounded-full border;
   }
   .chip-active {
-    @apply bg-accent-bg border-accent text-accent-dark;
+    @apply bg-pink-100/80 border-pink-200 text-pink-600;
   }
   .chip-idle {
-    @apply bg-surface border-ink-border text-ink-faint;
+    @apply bg-purple-100/60 border-purple-200 text-purple-400;
   }
 }
 
@@ -65,11 +72,11 @@
   background: transparent;
 }
 ::-webkit-scrollbar-thumb {
-  background: #E5E7EB;
+  background: #E9D5FF;
   border-radius: 3px;
 }
 ::-webkit-scrollbar-thumb:hover {
-  background: #9CA3AF;
+  background: #C084FC;
 }
 
 /* hide number input spinners */
@@ -110,4 +117,43 @@ input[type=number] {
 }
 .animate-appearance-in {
   animation: appearance-pop-in 0.2s ease-out both;
+}
+
+/* ============ 宠物动画 ============ */
+@keyframes pet-breathe {
+  0%, 100% { transform: scale(1) translateY(0); }
+  50% { transform: scale(1.03, 0.98) translateY(1px); }
+}
+@keyframes pet-blink {
+  0%, 45%, 55%, 100% { transform: scaleY(0); }
+  50% { transform: scaleY(1); }
+}
+@keyframes pet-tail {
+  0%, 100% { transform: rotate(0deg); }
+  25% { transform: rotate(8deg); }
+  75% { transform: rotate(-6deg); }
+}
+@keyframes pet-jump {
+  0% { transform: translateY(0) scale(1); }
+  40% { transform: translateY(-18px) scale(1.05, 0.95); }
+  100% { transform: translateY(0) scale(1); }
+}
+@keyframes bubble-pop {
+  0% { opacity: 0; transform: translateX(-50%) scale(0.85) translateY(6px); }
+  100% { opacity: 1; transform: translateX(-50%) scale(1) translateY(0); }
+}
+.animate-pet-breathe {
+  animation: pet-breathe 2.8s ease-in-out infinite;
+}
+.animate-pet-blink {
+  animation: pet-blink 3.6s ease-in-out infinite;
+}
+.animate-pet-tail {
+  animation: pet-tail 2.2s ease-in-out infinite;
+}
+.animate-pet-jump {
+  animation: pet-jump 0.5s cubic-bezier(0.34, 1.56, 0.64, 1) both;
+}
+.animate-bubble-pop {
+  animation: bubble-pop 0.25s cubic-bezier(0.34, 1.56, 0.64, 1) both;
 }

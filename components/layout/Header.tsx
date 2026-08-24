@@ -15,12 +15,12 @@ export interface HeaderProps {
 
 export default function Header({ title, updatedAt, actions, search, extra, onMenuClick, logo }: HeaderProps) {
   return (
-    <header className="sticky top-0 z-40 flex h-16 items-center justify-between gap-4 border-b border-ink-border bg-surface/95 px-4 backdrop-blur sm:px-6">
+    <header className="sticky top-0 z-40 flex h-16 items-center justify-between gap-4 border-b border-white/60 bg-white/60 px-4 shadow-soft backdrop-blur-md sm:px-6">
       {/* 左侧：汉堡菜单 + Logo + 页面标题 */}
       <div className="flex min-w-0 items-center gap-3">
         <button
           onClick={onMenuClick}
-          className="flex h-9 w-9 shrink-0 items-center justify-center rounded-lg text-ink-soft transition-colors hover:bg-surface-2 hover:text-ink lg:hidden"
+          className="flex h-9 w-9 shrink-0 items-center justify-center rounded-lg bg-white/40 text-ink-soft transition-colors hover:bg-white/70 hover:text-ink lg:hidden"
           title="菜单"
         >
           <svg className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
@@ -30,7 +30,7 @@ export default function Header({ title, updatedAt, actions, search, extra, onMen
 
         {logo && <div className="hidden shrink-0 items-center gap-2 lg:flex">{logo}</div>}
 
-        <div className="hidden h-6 w-px bg-ink-border sm:block" />
+        <div className="hidden h-6 w-px bg-ink-border/60 sm:block" />
 
         <div className="flex min-w-0 flex-col sm:flex-row sm:items-center sm:gap-3">
           <h1 className="truncate text-base font-semibold text-ink sm:text-lg">
@@ -83,10 +83,10 @@ export function HeaderAction({
     <button
       onClick={onClick}
       title={title}
-      className={`flex items-center gap-1.5 rounded-lg px-3 py-1.5 text-xs font-medium transition-colors ${
+      className={`flex items-center gap-1.5 rounded-lg px-3 py-1.5 text-xs font-medium transition-all ${
         primary
-          ? 'bg-accent text-white hover:bg-accent-dark'
-          : 'border border-ink-border text-ink-soft hover:border-accent/30 hover:text-accent'
+          ? 'bg-gradient-to-r from-purple-400 to-pink-400 text-white shadow-soft hover:shadow-md hover:brightness-105'
+          : 'border border-white/70 bg-white/50 text-ink-soft shadow-sm hover:border-accent/30 hover:bg-white/70 hover:text-accent'
       }`}
     >
       {children}
@@ -115,7 +115,7 @@ export function SearchInput({ value, onChange, placeholder = '搜索…' }: {
         value={value}
         onChange={(e) => onChange(e.target.value)}
         placeholder={placeholder}
-        className="w-full rounded-xl border border-ink-border bg-surface-2 py-2 pl-10 pr-4 text-sm text-ink placeholder:text-ink-faint focus:border-accent focus:bg-surface focus:outline-none focus:ring-2 focus:ring-accent/10 transition-colors"
+        className="w-full rounded-xl border border-white/70 bg-white/50 py-2 pl-10 pr-4 text-sm text-ink shadow-sm placeholder:text-ink-faint focus:border-accent focus:bg-white/80 focus:outline-none focus:ring-2 focus:ring-accent/20 transition-all"
       />
     </div>
   )
@@ -136,12 +136,12 @@ export function IconButton({
     <button
       onClick={onClick}
       title={title}
-      className="relative flex h-9 w-9 items-center justify-center rounded-lg border border-ink-border text-ink-soft transition-colors hover:border-accent/30 hover:text-accent hover:bg-surface-2"
+      className="relative flex h-9 w-9 items-center justify-center rounded-lg border border-white/70 bg-white/50 text-ink-soft shadow-sm transition-all hover:border-accent/30 hover:bg-white/70 hover:text-accent"
     >
       <svg className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
         <path strokeLinecap="round" strokeLinejoin="round" d={icon} />
       </svg>
-      {dot && <span className="absolute right-1.5 top-1.5 h-2 w-2 rounded-full bg-red-500 ring-2 ring-surface" />}
+      {dot && <span className="absolute right-1.5 top-1.5 h-2 w-2 rounded-full bg-pink-500 ring-2 ring-white" />}
     </button>
   )
 }

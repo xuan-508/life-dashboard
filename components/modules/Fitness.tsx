@@ -41,7 +41,7 @@ export default function Fitness() {
       const intake = rec?.intake || 0
       const burn = rec?.burn || 0
       const deficit = burn - intake
-      return { label: shortDay(date), value: Math.max(deficit, 0), color: '#3B9D4A' }
+      return { label: shortDay(date), value: Math.max(deficit, 0), color: '#D946EF' }
     })
   }, [records, days7])
 
@@ -87,7 +87,7 @@ export default function Fitness() {
         </div>
         <div className="card-sm">
           <div className="label mb-1">BMI</div>
-          <div className="stat-sm" style={{ color: bmi > 0 ? bmiInfo.color : '#999999' }}>
+          <div className="stat-sm" style={{ color: bmi > 0 ? bmiInfo.color : '#C084FC' }}>
             {bmi > 0 ? bmi : '—'}
           </div>
           {bmi > 0 && <div className="text-[11px] font-mono mt-0.5" style={{ color: bmiInfo.color }}>{bmiInfo.label}</div>}
@@ -103,7 +103,7 @@ export default function Fitness() {
         <div className="card">
           <div className="label mb-3">近7日体重趋势</div>
           {weightData.length > 0 ? (
-            <LineChart data={weightData} height={120} color="#3B9D4A" format={(n) => `${n}kg`} />
+            <LineChart data={weightData} height={120} color="#D946EF" format={(n) => `${n}kg`} />
           ) : (
             <div className="flex h-32 items-center justify-center text-sm text-ink-faint">暂无记录</div>
           )}
@@ -238,14 +238,14 @@ export default function Fitness() {
           sorted.slice(0, 30).map((r) => (
             <div
               key={r.id}
-              className="flex items-center gap-3 border-b border-ink-border py-2 px-1 hover:bg-surface-2 transition-colors group"
+              className="flex items-center gap-3 border-b border-white/60 py-2 px-1 hover:bg-white/50 transition-colors group"
             >
               <div className="flex-1 min-w-0">
                 <div className="flex items-center gap-2">
                   <span className="font-mono text-sm font-medium">{r.weight}kg</span>
                   {r.bodyFat != null && <span className="text-xs font-mono text-ink-faint">体脂 {r.bodyFat}%</span>}
                   {r.intake != null && r.burn != null && (
-                    <span className="text-xs font-mono" style={{ color: r.burn - r.intake >= 0 ? '#3B9D4A' : '#D9534F' }}>
+                    <span className="text-xs font-mono" style={{ color: r.burn - r.intake >= 0 ? '#D946EF' : '#E11D48' }}>
                       缺口 {r.burn - r.intake}kcal
                     </span>
                   )}

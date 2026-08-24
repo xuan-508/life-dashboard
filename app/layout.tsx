@@ -1,5 +1,6 @@
 import type { Metadata, Viewport } from 'next'
 import './globals.css'
+import PetMascot from '@/components/PetMascot'
 
 export const metadata: Metadata = {
   title: '生活工作台',
@@ -15,7 +16,7 @@ export const viewport: Viewport = {
   width: 'device-width',
   initialScale: 1,
   maximumScale: 1,
-  themeColor: '#0a0a0a',
+  themeColor: '#D946EF',
 }
 
 export default function RootLayout({
@@ -27,6 +28,7 @@ export default function RootLayout({
     <html lang="zh-CN">
       <body className="min-h-screen bg-paper text-ink antialiased">
         {children}
+        <PetMascot />
         <script
           dangerouslySetInnerHTML={{
             __html: `

@@ -18,7 +18,7 @@ export default function KPICard({
   label,
   value,
   sub,
-  color = '#14B8A6',
+  color = '#D946EF',
   icon,
   progress,
   trend,
@@ -41,7 +41,7 @@ export default function KPICard({
           onClick()
         }
       }}
-      className={`relative flex flex-col justify-between overflow-hidden rounded-card border border-ink-border bg-surface p-5 shadow-sm transition-shadow hover:shadow-md ${clickableClass} ${className}`}
+      className={`relative flex flex-col justify-between overflow-hidden rounded-card border border-white/60 bg-white/60 p-5 shadow-soft backdrop-blur-md transition-all hover:bg-white/70 hover:shadow-md ${clickableClass} ${className}`}
     >
       <div className="flex items-start justify-between">
         <div className="min-w-0 flex-1">
@@ -67,7 +67,7 @@ export default function KPICard({
 
       <div className="mt-4">
         {hasProgress && (
-          <div className="mb-3 h-2 w-full overflow-hidden rounded-full bg-surface-2">
+          <div className="mb-3 h-2 w-full overflow-hidden rounded-full bg-white/50 border border-white/40">
             <div
               className="h-full rounded-full transition-all duration-500"
               style={{ width: `${Math.min(100, Math.max(0, progress))}%`, backgroundColor: color }}
@@ -75,17 +75,17 @@ export default function KPICard({
           </div>
         )}
         {trend ? (
-          <div className="inline-flex items-center gap-1 rounded-full px-2 py-0.5 text-[11px] font-semibold"
+            <div className="inline-flex items-center gap-1 rounded-full px-2 py-0.5 text-[11px] font-semibold"
             style={{
-              backgroundColor: trend.up ? '#CCFBF1' : '#FEE2E2',
-              color: trend.up ? '#0D9488' : '#DC2626',
+              backgroundColor: trend.up ? '#FAE8FF' : '#FEE2E2',
+              color: trend.up ? '#A21CAF' : '#DC2626',
             }}
           >
             <span>{trend.up ? '↑' : '↓'} {trend.value}</span>
             <span className="opacity-70">环比</span>
           </div>
         ) : (
-          <div className="inline-flex items-center gap-1 rounded-full bg-accent-bg px-2 py-0.5 text-[11px] font-semibold text-accent-dark">
+          <div className="inline-flex items-center gap-1 rounded-full border border-white/60 bg-white/50 px-2 py-0.5 text-[11px] font-semibold text-accent-dark">
             <span>—</span>
             <span className="opacity-70">环比</span>
           </div>

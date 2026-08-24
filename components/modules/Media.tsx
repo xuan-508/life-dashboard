@@ -12,9 +12,9 @@ const TYPE_CONFIG: Record<MediaType, { label: string; icon: string }> = {
 }
 
 const STATUS_CONFIG: Record<MediaStatus, { label: string; color: string }> = {
-  wishlist: { label: '想看', color: '#999999' },
-  reading:  { label: '在看', color: '#3B9D4A' },
-  done:     { label: '看完', color: '#E89B2F' },
+  wishlist: { label: '想看', color: '#C084FC' },
+  reading:  { label: '在看', color: '#D946EF' },
+  done:     { label: '看完', color: '#A855F7' },
 }
 
 const TYPE_FILTERS: { value: MediaType | 'all'; label: string }[] = [
@@ -115,7 +115,7 @@ export default function Media() {
         </div>
         <div className="card-sm">
           <div className="label">看完</div>
-          <div className="stat-sm mt-1 text-[#E89B2F]">{stats.done}</div>
+          <div className="stat-sm mt-1 text-[#F472B6]">{stats.done}</div>
         </div>
       </div>
 
@@ -214,7 +214,7 @@ export default function Media() {
             return (
               <div key={item.id} className="card-sm group relative">
                 {/* Cover */}
-                <div className="aspect-[3/4] mb-2 rounded-sm-clean overflow-hidden bg-surface-2 flex items-center justify-center">
+                <div className="aspect-[3/4] mb-2 rounded-sm-clean overflow-hidden bg-white/50 flex items-center justify-center">
                   {item.cover ? (
                     // eslint-disable-next-line @next/next/no-img-element
                     <img src={item.cover} alt={item.title} className="w-full h-full object-cover" />
@@ -241,7 +241,7 @@ export default function Media() {
                     <button
                       key={star}
                       onClick={() => setRating(item.id, star === item.rating ? star - 1 : star)}
-                      className={`text-sm cursor-pointer ${star <= item.rating ? 'text-[#E89B2F]' : 'text-ink-border'}`}
+                      className={`text-sm cursor-pointer ${star <= item.rating ? 'text-[#F472B6]' : 'text-ink-border'}`}
                     >
                       ★
                     </button>
@@ -251,7 +251,7 @@ export default function Media() {
                 {/* Delete on hover */}
                 <button
                   onClick={() => handleDelete(item.id)}
-                  className="absolute top-1 right-1 text-ink-faint hover:text-[#D9534F] text-sm cursor-pointer opacity-0 group-hover:opacity-100 transition-opacity px-1"
+                  className="absolute top-1 right-1 text-ink-faint hover:text-[#E11D48] text-sm cursor-pointer opacity-0 group-hover:opacity-100 transition-opacity px-1"
                 >
                   ×
                 </button>
@@ -273,7 +273,7 @@ export default function Media() {
             return (
               <div key={item.id} className="card-sm flex items-center gap-3">
                 {/* Mini cover */}
-                <div className="shrink-0 w-10 h-14 rounded-sm-clean overflow-hidden bg-surface-2 flex items-center justify-center">
+                <div className="shrink-0 w-10 h-14 rounded-sm-clean overflow-hidden bg-white/50 flex items-center justify-center">
                   {item.cover ? (
                     // eslint-disable-next-line @next/next/no-img-element
                     <img src={item.cover} alt={item.title} className="w-full h-full object-cover" />
@@ -306,7 +306,7 @@ export default function Media() {
                     <button
                       key={star}
                       onClick={() => setRating(item.id, star === item.rating ? star - 1 : star)}
-                      className={`text-sm cursor-pointer ${star <= item.rating ? 'text-[#E89B2F]' : 'text-ink-border'}`}
+                      className={`text-sm cursor-pointer ${star <= item.rating ? 'text-[#F472B6]' : 'text-ink-border'}`}
                     >
                       ★
                     </button>
@@ -316,7 +316,7 @@ export default function Media() {
                 {/* Delete */}
                 <button
                   onClick={() => handleDelete(item.id)}
-                  className="shrink-0 text-ink-faint hover:text-[#D9534F] text-sm cursor-pointer transition-colors px-1"
+                  className="shrink-0 text-ink-faint hover:text-[#E11D48] text-sm cursor-pointer transition-colors px-1"
                 >
                   ×
                 </button>

@@ -7,17 +7,17 @@ import MonthCalendar from '@/components/charts/MonthCalendar'
 import WeekCalendar from '@/components/charts/WeekCalendar'
 
 const STATUS_CONFIG: Record<ScheduleStatus, { label: string; bg: string; text: string; border: string }> = {
-  todo:  { label: '待办', bg: 'bg-surface-2',  text: 'text-ink-soft',  border: 'border-ink-border' },
-  doing: { label: '进行中', bg: 'bg-accent-bg', text: 'text-accent-dark', border: 'border-accent' },
-  done:  { label: '已完成', bg: 'bg-[#F0F0EC]', text: 'text-ink-faint', border: 'border-ink-border' },
+  todo:  { label: '待办', bg: 'bg-white/50',  text: 'text-purple-600',  border: 'border-purple-200' },
+  doing: { label: '进行中', bg: 'bg-pink-100/80', text: 'text-pink-600', border: 'border-pink-300' },
+  done:  { label: '已完成', bg: 'bg-white/40', text: 'text-purple-300', border: 'border-purple-100' },
 }
 
 const STATUS_ORDER: ScheduleStatus[] = ['todo', 'doing', 'done']
 
 const PRIORITY_CONFIG: Record<SchedulePriority, { label: string; color: string }> = {
-  low:    { label: '低', color: '#999999' },
-  medium: { label: '中', color: '#E89B2F' },
-  high:   { label: '高', color: '#D9534F' },
+  low:    { label: '低', color: '#C084FC' },
+  medium: { label: '中', color: '#F472B6' },
+  high:   { label: '高', color: '#D946EF' },
 }
 
 interface ScheduleProps {
@@ -233,7 +233,7 @@ export default function Schedule({ accounts = [], fitness = [] }: ScheduleProps)
       <div className="card">
         <div className="mb-3 flex items-center justify-between">
           <div className="label">日历视图</div>
-          <div className="flex gap-1 rounded-clean border border-ink/10 p-0.5">
+          <div className="flex gap-1 rounded-clean border border-white/60 bg-white/40 p-0.5 backdrop-blur-sm">
             <button
               onClick={() => setCalMode('month')}
               className={`rounded-clean px-2.5 py-1 text-xs font-medium transition-colors ${
@@ -256,7 +256,7 @@ export default function Schedule({ accounts = [], fitness = [] }: ScheduleProps)
         {calMode === 'month' ? (
           <MonthCalendar
             days={calDays}
-            color="#3B9D4A"
+            color="#D946EF"
             onSelect={handleSelectDate}
             onDropDate={handleDropDate}
             selectedDate={filterDate || undefined}
@@ -264,7 +264,7 @@ export default function Schedule({ accounts = [], fitness = [] }: ScheduleProps)
         ) : (
           <WeekCalendar
             days={calDays}
-            color="#3B9D4A"
+            color="#D946EF"
             onSelect={handleSelectDate}
             onDropDate={handleDropDate}
             selectedDate={filterDate || undefined}
@@ -274,18 +274,18 @@ export default function Schedule({ accounts = [], fitness = [] }: ScheduleProps)
         )}
 
         {/* 日历图例 */}
-        <div className="mt-3 flex flex-wrap items-center gap-x-4 gap-y-1 border-t border-ink/5 pt-2 text-[11px] text-ink-faint">
+        <div className="mt-3 flex flex-wrap items-center gap-x-4 gap-y-1 border-t border-white/60 pt-2 text-[11px] text-ink-faint">
           <span className="flex items-center gap-1">
-            <span className="inline-block h-2 w-2 rounded-full" style={{ backgroundColor: '#3B9D4A' }} /> 日程
+            <span className="inline-block h-2 w-2 rounded-full" style={{ backgroundColor: '#D946EF' }} /> 日程
           </span>
           <span className="flex items-center gap-1">
-            <span className="inline-block h-2 w-2 rounded-full" style={{ backgroundColor: '#D9534F' }} /> 支出
+            <span className="inline-block h-2 w-2 rounded-full" style={{ backgroundColor: '#E11D48' }} /> 支出
           </span>
           <span className="flex items-center gap-1">
-            <span className="inline-block h-2 w-2 rounded-full" style={{ backgroundColor: '#2F9E44' }} /> 收入
+            <span className="inline-block h-2 w-2 rounded-full" style={{ backgroundColor: '#A855F7' }} /> 收入
           </span>
           <span className="flex items-center gap-1">
-            <span className="inline-block h-2 w-2 rounded-full" style={{ backgroundColor: '#4A90D9' }} /> 健身
+            <span className="inline-block h-2 w-2 rounded-full" style={{ backgroundColor: '#EC4899' }} /> 健身
           </span>
           <span className="ml-auto">拖拽日程可调整日期</span>
         </div>
@@ -365,7 +365,7 @@ export default function Schedule({ accounts = [], fitness = [] }: ScheduleProps)
                     {/* Delete */}
                     <button
                       onClick={() => handleDelete(item.id)}
-                      className="shrink-0 text-ink-faint hover:text-[#D9534F] text-sm cursor-pointer transition-colors px-1"
+                      className="shrink-0 text-ink-faint hover:text-[#E11D48] text-sm cursor-pointer transition-colors px-1"
                     >
                       ×
                     </button>

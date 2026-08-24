@@ -24,18 +24,18 @@ const EXPENSE_CATEGORIES = ['餐饮', '交通', '购物', '住房', '娱乐', '�
 const INCOME_CATEGORIES = ['工资', '兼职', '投资', '红包', '其他']
 
 const CATEGORY_COLORS: Record<string, string> = {
-  '餐饮': '#3B9D4A',
-  '交通': '#4A90D9',
-  '购物': '#E89B2F',
-  '住房': '#9B59B6',
-  '娱乐': '#E74C3C',
-  '医疗': '#1ABC9C',
-  '教育': '#34495E',
-  '其他': '#999999',
-  '工资': '#3B9D4A',
-  '兼职': '#4A90D9',
-  '投资': '#E89B2F',
-  '红包': '#E74C3C',
+  '餐饮': '#A855F7',
+  '交通': '#8B5CF6',
+  '购物': '#EC4899',
+  '住房': '#D946EF',
+  '娱乐': '#F472B6',
+  '医疗': '#C084FC',
+  '教育': '#7C5A8D',
+  '其他': '#B9A4C7',
+  '工资': '#A855F7',
+  '兼职': '#8B5CF6',
+  '投资': '#EC4899',
+  '红包': '#F472B6',
 }
 
 export default function Accounting() {
@@ -75,7 +75,7 @@ export default function Accounting() {
       const expense = records
         .filter((r) => r.type === 'expense' && r.date.startsWith(prefix))
         .reduce((s, r) => s + r.amount, 0)
-      months.push({ label: `${d.getMonth() + 1}月`, value: expense, color: '#3B9D4A' })
+      months.push({ label: `${d.getMonth() + 1}月`, value: expense, color: '#D946EF' })
     }
     return months
   }, [records])
@@ -89,7 +89,7 @@ export default function Accounting() {
         map[r.category] = (map[r.category] || 0) + r.amount
       })
     return Object.entries(map)
-      .map(([label, value]) => ({ label, value, color: CATEGORY_COLORS[label] || '#999999' }))
+      .map(([label, value]) => ({ label, value, color: CATEGORY_COLORS[label] || '#C084FC' }))
       .sort((a, b) => b.value - a.value)
   }, [monthRecords])
 
@@ -187,21 +187,21 @@ export default function Accounting() {
         <KPICard
           label="本月收入"
           value={`¥${formatMoney(totalIncome)}`}
-          color="#3B9D4A"
+          color="#A855F7"
           icon={ICONS.income}
           sub="当月累计"
         />
         <KPICard
           label="本月支出"
           value={`¥${formatMoney(totalExpense)}`}
-          color="#D9534F"
+          color="#EC4899"
           icon={ICONS.expense}
           sub="当月累计"
         />
         <KPICard
           label="本月结余"
           value={`¥${formatMoney(balance)}`}
-          color={balance >= 0 ? '#3B9D4A' : '#D9534F'}
+          color={balance >= 0 ? '#A855F7' : '#EC4899'}
           icon={ICONS.balance}
           sub={balance >= 0 ? '盈余' : '赤字'}
         />
@@ -241,9 +241,9 @@ export default function Accounting() {
             ⇅ 导入/导出
           </button>
           {showImportMenu && (
-            <div className="absolute left-0 top-full z-20 mt-1 w-44 rounded-lg border border-ink-border bg-surface-1 p-1 shadow-lg">
+            <div className="absolute left-0 top-full z-20 mt-1 w-44 rounded-lg border border-white/60 bg-white/70 p-1 shadow-soft backdrop-blur-md">
               <button
-                className="flex w-full items-center gap-2 rounded-md px-3 py-2 text-left text-sm hover:bg-surface-2"
+                className="flex w-full items-center gap-2 rounded-md px-3 py-2 text-left text-sm hover:bg-white/70"
                 onClick={() => {
                   exportAccountsJSON(records)
                   setShowImportMenu(false)
@@ -252,7 +252,7 @@ export default function Accounting() {
                 <span>📥</span> 导出 JSON
               </button>
               <button
-                className="flex w-full items-center gap-2 rounded-md px-3 py-2 text-left text-sm hover:bg-surface-2"
+                className="flex w-full items-center gap-2 rounded-md px-3 py-2 text-left text-sm hover:bg-white/70"
                 onClick={() => {
                   exportAccountsCSV(records)
                   setShowImportMenu(false)
@@ -260,9 +260,9 @@ export default function Accounting() {
               >
                 <span>📄</span> 导出 CSV
               </button>
-              <div className="my-1 border-t border-ink-border" />
+              <div className="my-1 border-t border-white/60" />
               <button
-                className="flex w-full items-center gap-2 rounded-md px-3 py-2 text-left text-sm hover:bg-surface-2"
+                className="flex w-full items-center gap-2 rounded-md px-3 py-2 text-left text-sm hover:bg-white/70"
                 onClick={() => {
                   fileInputRef.current?.click()
                 }}
@@ -350,8 +350,8 @@ export default function Accounting() {
         <div
           className={`rounded-lg px-3 py-2 text-sm ${
             importMsg.startsWith('成功')
-              ? 'bg-green-100 text-green-800 dark:bg-green-900/30 dark:text-green-200'
-              : 'bg-red-100 text-red-800 dark:bg-red-900/30 dark:text-red-200'
+              ? 'bg-white/60 text-accent-dark border border-white/60 backdrop-blur-md'
+              : 'bg-red-50/80 text-red-800 dark:bg-red-900/30 dark:text-red-200 border border-white/60'
           }`}
         >
           {importMsg}
@@ -420,11 +420,11 @@ export default function Accounting() {
           filtered.slice(0, 50).map((r) => (
             <div
               key={r.id}
-              className="flex items-center gap-3 border-b border-ink-border py-2 px-1 hover:bg-surface-2 transition-colors group"
+              className="flex items-center gap-3 border-b border-white/60 py-2 px-1 hover:bg-white/50 transition-colors group"
             >
               <div
                 className="w-1 h-8 rounded-full flex-shrink-0"
-                style={{ backgroundColor: r.type === 'income' ? '#3B9D4A' : '#D9534F' }}
+                style={{ backgroundColor: r.type === 'income' ? '#A855F7' : '#EC4899' }}
               />
               <div className="flex-1 min-w-0">
                 <div className="flex items-center gap-2">
@@ -433,7 +433,7 @@ export default function Accounting() {
                 </div>
                 <div className="text-[11px] font-mono text-ink-faint">{r.date}</div>
               </div>
-              <div className="font-mono text-sm" style={{ color: r.type === 'income' ? '#3B9D4A' : '#1A1A1A' }}>
+              <div className="font-mono text-sm" style={{ color: r.type === 'income' ? '#A855F7' : '#4B1D6B' }}>
                 {r.type === 'income' ? '+' : '-'}¥{formatMoney(r.amount)}
               </div>
               <button

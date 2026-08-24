@@ -220,7 +220,7 @@ export default function Home() {
       case 'loading':
         return { dot: 'bg-amber-400 animate-pulse', text: '同步中', title: '正在从云端加载数据...' }
       case 'synced':
-        return { dot: 'bg-green-500', text: '已同步', title: '数据已与云端同步' }
+        return { dot: 'bg-accent', text: '已同步', title: '数据已与云端同步' }
       case 'error':
         return { dot: 'bg-red-500', text: '同步失败', title: cloudSync.error ?? '同步出错' }
       default:
