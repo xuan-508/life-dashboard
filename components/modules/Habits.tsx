@@ -275,7 +275,7 @@ export default function Habits() {
                 </div>
 
                 {/* Make-up (补卡) controls */}
-                <div className="flex flex-wrap items-center gap-2 mb-3 p-2 rounded-sm-clean bg-white/50 border border-white/60 backdrop-blur-sm">
+                <div className="flex flex-wrap items-center gap-2 mb-3 p-2 rounded-sm-clean bg-surface border border-ink-border">
                   <span className="text-xs text-ink-soft">补卡</span>
                   <input
                     type="date"

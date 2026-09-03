@@ -59,7 +59,7 @@ export default function PetMascot() {
     <button
       ref={wrapRef}
       onClick={handleClick}
-      className={`fixed bottom-6 right-6 z-50 h-24 w-24 cursor-pointer select-none rounded-full bg-white/30 p-2 shadow-lg backdrop-blur-sm transition-transform duration-200 hover:scale-105 focus:outline-none sm:bottom-8 sm:right-8 ${
+      className={`fixed bottom-6 right-6 z-50 h-24 w-24 cursor-pointer select-none rounded-full bg-surface p-2 shadow-lg transition-transform duration-200 hover:scale-105 focus:outline-none sm:bottom-8 sm:right-8 ${
         jumping ? 'animate-pet-jump' : ''
       }`}
       aria-label='互动宠物'
@@ -67,9 +67,9 @@ export default function PetMascot() {
     >
       {/* 对话气泡 */}
       {bubble && (
-        <div className='absolute -top-12 left-1/2 z-10 w-max max-w-[10rem] -translate-x-1/2 rounded-xl bg-white/90 px-3 py-1.5 text-xs font-medium text-purple-600 shadow-md backdrop-blur-sm animate-bubble-pop'>
+        <div className='absolute -top-12 left-1/2 z-10 w-max max-w-[10rem] -translate-x-1/2 rounded-xl bg-surface px-3 py-1.5 text-xs font-medium text-purple-600 shadow-md border border-ink-border animate-bubble-pop'>
           {bubble}
-          <span className='absolute -bottom-1 left-1/2 h-2 w-2 -translate-x-1/2 rotate-45 bg-white/90' />
+          <span className='absolute -bottom-1 left-1/2 h-2 w-2 -translate-x-1/2 rotate-45 bg-surface border-r border-b border-ink-border' />
         </div>
       )}
 

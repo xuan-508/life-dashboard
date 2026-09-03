@@ -214,7 +214,7 @@ export default function Media() {
             return (
               <div key={item.id} className="card-sm group relative">
                 {/* Cover */}
-                <div className="aspect-[3/4] mb-2 rounded-sm-clean overflow-hidden bg-white/50 flex items-center justify-center">
+                <div className="aspect-[3/4] mb-2 rounded-sm-clean overflow-hidden bg-surface-2 flex items-center justify-center">
                   {item.cover ? (
                     // eslint-disable-next-line @next/next/no-img-element
                     <img src={item.cover} alt={item.title} className="w-full h-full object-cover" />
@@ -273,7 +273,7 @@ export default function Media() {
             return (
               <div key={item.id} className="card-sm flex items-center gap-3">
                 {/* Mini cover */}
-                <div className="shrink-0 w-10 h-14 rounded-sm-clean overflow-hidden bg-white/50 flex items-center justify-center">
+                <div className="shrink-0 w-10 h-14 rounded-sm-clean overflow-hidden bg-surface-2 flex items-center justify-center">
                   {item.cover ? (
                     // eslint-disable-next-line @next/next/no-img-element
                     <img src={item.cover} alt={item.title} className="w-full h-full object-cover" />

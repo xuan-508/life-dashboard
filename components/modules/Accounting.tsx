@@ -241,9 +241,9 @@ export default function Accounting() {
             ⇅ 导入/导出
           </button>
           {showImportMenu && (
-            <div className="absolute left-0 top-full z-20 mt-1 w-44 rounded-lg border border-white/60 bg-white/70 p-1 shadow-soft backdrop-blur-md">
+            <div className="absolute left-0 top-full z-20 mt-1 w-44 rounded-lg border border-ink-border bg-surface p-1 shadow-soft">
               <button
-                className="flex w-full items-center gap-2 rounded-md px-3 py-2 text-left text-sm hover:bg-white/70"
+                className="flex w-full items-center gap-2 rounded-md px-3 py-2 text-left text-sm hover:bg-surface-2"
                 onClick={() => {
                   exportAccountsJSON(records)
                   setShowImportMenu(false)
@@ -252,7 +252,7 @@ export default function Accounting() {
                 <span>📥</span> 导出 JSON
               </button>
               <button
-                className="flex w-full items-center gap-2 rounded-md px-3 py-2 text-left text-sm hover:bg-white/70"
+                className="flex w-full items-center gap-2 rounded-md px-3 py-2 text-left text-sm hover:bg-surface-2"
                 onClick={() => {
                   exportAccountsCSV(records)
                   setShowImportMenu(false)
@@ -260,9 +260,9 @@ export default function Accounting() {
               >
                 <span>📄</span> 导出 CSV
               </button>
-              <div className="my-1 border-t border-white/60" />
+              <div className="my-1 border-t border-ink-border" />
               <button
-                className="flex w-full items-center gap-2 rounded-md px-3 py-2 text-left text-sm hover:bg-white/70"
+                className="flex w-full items-center gap-2 rounded-md px-3 py-2 text-left text-sm hover:bg-surface-2"
                 onClick={() => {
                   fileInputRef.current?.click()
                 }}
@@ -350,8 +350,8 @@ export default function Accounting() {
         <div
           className={`rounded-lg px-3 py-2 text-sm ${
             importMsg.startsWith('成功')
-              ? 'bg-white/60 text-accent-dark border border-white/60 backdrop-blur-md'
-              : 'bg-red-50/80 text-red-800 dark:bg-red-900/30 dark:text-red-200 border border-white/60'
+              ? 'bg-surface text-accent-dark border border-ink-border'
+              : 'bg-red-50 text-red-800 dark:bg-red-900/30 dark:text-red-200 border border-ink-border'
           }`}
         >
           {importMsg}
@@ -420,7 +420,7 @@ export default function Accounting() {
           filtered.slice(0, 50).map((r) => (
             <div
               key={r.id}
-              className="flex items-center gap-3 border-b border-white/60 py-2 px-1 hover:bg-white/50 transition-colors group"
+              className="flex items-center gap-3 border-b border-ink-border py-2 px-1 hover:bg-surface-2 transition-colors group"
             >
               <div
                 className="w-1 h-8 rounded-full flex-shrink-0"

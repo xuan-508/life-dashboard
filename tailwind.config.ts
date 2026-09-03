@@ -8,23 +8,25 @@ const config: Config = {
   theme: {
     extend: {
       colors: {
-        paper: "#FDF7FF",
-        ink: "#4B1D6B",
-        "ink-soft": "#7C5A8D",
-        "ink-faint": "#B9A4C7",
-        "ink-border": "#EADCF6",
+        paper: "rgb(var(--paper) / <alpha-value>)",
+        ink: "rgb(var(--ink) / <alpha-value>)",
+        "ink-soft": "rgb(var(--ink-soft) / <alpha-value>)",
+        "ink-faint": "rgb(var(--ink-faint) / <alpha-value>)",
+        "ink-border": "rgb(var(--ink-border) / <alpha-value>)",
         accent: {
-          DEFAULT: "#D946EF",
-          light: "#F0ABFC",
-          dark: "#A21CAF",
-          bg: "#FAE8FF",
-          bg2: "#F5D0FE",
+          DEFAULT: "rgb(var(--accent) / <alpha-value>)",
+          light: "rgb(var(--accent-light) / <alpha-value>)",
+          dark: "rgb(var(--accent-dark) / <alpha-value>)",
+          bg: "rgb(var(--accent-bg) / <alpha-value>)",
+          bg2: "rgb(var(--accent-bg2) / <alpha-value>)",
         },
-        surface: "#FFFFFF",
-        "surface-2": "#F9F5FB",
+        surface: "rgb(var(--surface) / <alpha-value>)",
+        "surface-2": "rgb(var(--surface-2) / <alpha-value>)",
       },
       boxShadow: {
-        soft: "0 4px 20px rgba(124, 58, 237, 0.10)",
+        soft: "0 4px 20px rgba(var(--shadow-color) / 0.12)",
+        panel: "0 10px 40px rgba(var(--shadow-color) / 0.18)",
+        float: "0 2px 8px rgba(var(--shadow-color) / 0.10)",
       },
       fontFamily: {
         sans: ["system-ui", "-apple-system", "Segoe UI", "Roboto", "sans-serif"],

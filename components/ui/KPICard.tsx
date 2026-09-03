@@ -41,7 +41,7 @@ export default function KPICard({
           onClick()
         }
       }}
-      className={`relative flex flex-col justify-between overflow-hidden rounded-card border border-white/60 bg-white/60 p-5 shadow-soft backdrop-blur-md transition-all hover:bg-white/70 hover:shadow-md ${clickableClass} ${className}`}
+      className={`relative flex flex-col justify-between overflow-hidden rounded-card border border-ink-border bg-surface p-5 shadow-soft transition-all hover:bg-surface-2 hover:shadow-md ${clickableClass} ${className}`}
     >
       <div className="flex items-start justify-between">
         <div className="min-w-0 flex-1">
@@ -67,7 +67,7 @@ export default function KPICard({
 
       <div className="mt-4">
         {hasProgress && (
-          <div className="mb-3 h-2 w-full overflow-hidden rounded-full bg-white/50 border border-white/40">
+          <div className="mb-3 h-2 w-full overflow-hidden rounded-full bg-surface-2 border border-ink-border">
             <div
               className="h-full rounded-full transition-all duration-500"
               style={{ width: `${Math.min(100, Math.max(0, progress))}%`, backgroundColor: color }}
@@ -85,7 +85,7 @@ export default function KPICard({
             <span className="opacity-70">环比</span>
           </div>
         ) : (
-          <div className="inline-flex items-center gap-1 rounded-full border border-white/60 bg-white/50 px-2 py-0.5 text-[11px] font-semibold text-accent-dark">
+          <div className="inline-flex items-center gap-1 rounded-full border border-ink-border bg-surface-2 px-2 py-0.5 text-[11px] font-semibold text-accent-dark">
             <span>—</span>
             <span className="opacity-70">环比</span>
           </div>

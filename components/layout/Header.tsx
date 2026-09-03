@@ -15,12 +15,12 @@ export interface HeaderProps {
 
 export default function Header({ title, updatedAt, actions, search, extra, onMenuClick, logo }: HeaderProps) {
   return (
-    <header className="sticky top-0 z-40 flex h-16 items-center justify-between gap-4 border-b border-white/60 bg-white/60 px-4 shadow-soft backdrop-blur-md sm:px-6">
+    <header className="sticky top-0 z-40 flex h-16 items-center justify-between gap-4 border-b border-ink-border bg-surface px-4 shadow-soft sm:px-6">
       {/* 左侧：汉堡菜单 + Logo + 页面标题 */}
       <div className="flex min-w-0 items-center gap-3">
         <button
           onClick={onMenuClick}
-          className="flex h-9 w-9 shrink-0 items-center justify-center rounded-lg bg-white/40 text-ink-soft transition-colors hover:bg-white/70 hover:text-ink lg:hidden"
+          className="flex h-9 w-9 shrink-0 items-center justify-center rounded-lg bg-surface-2 text-ink-soft transition-colors hover:bg-accent-bg hover:text-ink lg:hidden"
           title="菜单"
         >
           <svg className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
@@ -86,7 +86,7 @@ export function HeaderAction({
       className={`flex items-center gap-1.5 rounded-lg px-3 py-1.5 text-xs font-medium transition-all ${
         primary
           ? 'bg-gradient-to-r from-purple-400 to-pink-400 text-white shadow-soft hover:shadow-md hover:brightness-105'
-          : 'border border-white/70 bg-white/50 text-ink-soft shadow-sm hover:border-accent/30 hover:bg-white/70 hover:text-accent'
+          : 'border border-ink-border bg-surface-2 text-ink-soft shadow-sm hover:border-accent/30 hover:bg-accent-bg hover:text-accent'
       }`}
     >
       {children}
@@ -115,7 +115,7 @@ export function SearchInput({ value, onChange, placeholder = '搜索…' }: {
         value={value}
         onChange={(e) => onChange(e.target.value)}
         placeholder={placeholder}
-        className="w-full rounded-xl border border-white/70 bg-white/50 py-2 pl-10 pr-4 text-sm text-ink shadow-sm placeholder:text-ink-faint focus:border-accent focus:bg-white/80 focus:outline-none focus:ring-2 focus:ring-accent/20 transition-all"
+        className="w-full rounded-xl border border-ink-border bg-surface-2 py-2 pl-10 pr-4 text-sm text-ink shadow-sm placeholder:text-ink-faint focus:border-accent focus:bg-surface focus:outline-none focus:ring-2 focus:ring-accent/20 transition-all"
       />
     </div>
   )
@@ -136,7 +136,7 @@ export function IconButton({
     <button
       onClick={onClick}
       title={title}
-      className="relative flex h-9 w-9 items-center justify-center rounded-lg border border-white/70 bg-white/50 text-ink-soft shadow-sm transition-all hover:border-accent/30 hover:bg-white/70 hover:text-accent"
+      className="relative flex h-9 w-9 items-center justify-center rounded-lg border border-ink-border bg-surface-2 text-ink-soft shadow-sm transition-all hover:border-accent/30 hover:bg-accent-bg hover:text-accent"
     >
       <svg className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
         <path strokeLinecap="round" strokeLinejoin="round" d={icon} />

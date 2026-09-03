@@ -238,7 +238,7 @@ export default function Fitness() {
           sorted.slice(0, 30).map((r) => (
             <div
               key={r.id}
-              className="flex items-center gap-3 border-b border-white/60 py-2 px-1 hover:bg-white/50 transition-colors group"
+              className="flex items-center gap-3 border-b border-ink-border py-2 px-1 hover:bg-surface-2 transition-colors group"
             >
               <div className="flex-1 min-w-0">
                 <div className="flex items-center gap-2">

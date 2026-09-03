@@ -38,14 +38,14 @@ export default function Sidebar({
     <aside
       className={
         mobile
-          ? 'flex h-full w-full flex-col bg-white/60 backdrop-blur-md'
-          : `fixed left-0 top-0 z-50 hidden h-screen flex-col border-r border-white/60 bg-white/60 shadow-soft backdrop-blur-md transition-all duration-300 lg:flex ${
+          ? 'flex h-full w-full flex-col bg-surface'
+          : `fixed left-0 top-0 z-50 hidden h-screen flex-col border-r border-ink-border bg-surface shadow-soft transition-all duration-300 lg:flex ${
               collapsed ? 'w-16' : 'w-60'
             }`
       }
     >
       <div
-        className={`flex h-16 items-center justify-between border-b border-white/60 px-3 ${
+        className={`flex h-16 items-center justify-between border-b border-ink-border px-3 ${
           collapsed ? 'px-3' : 'px-4'
         }`}
       >
@@ -55,7 +55,7 @@ export default function Sidebar({
         {onToggleCollapse && !collapsed && (
           <button
             onClick={onToggleCollapse}
-            className='rounded-clean bg-white/50 p-1.5 text-ink-faint transition-colors hover:bg-white/70 hover:text-ink'
+            className='rounded-clean bg-surface-2 p-1.5 text-ink-faint transition-colors hover:bg-surface hover:text-ink'
             title='收起目录'
           >
             <svg className='h-4 w-4' fill='none' viewBox='0 0 24 24' stroke='currentColor' strokeWidth={2}>
@@ -79,7 +79,7 @@ export default function Sidebar({
                   } text-sm font-medium ${
                     isActive
                       ? 'bg-accent text-white shadow-sm'
-                      : 'text-ink-soft hover:bg-white/50 hover:text-ink'
+                      : 'text-ink-soft hover:bg-surface-2 hover:text-ink'
                   }`}
                 >
                   <svg
@@ -97,7 +97,7 @@ export default function Sidebar({
                       {item.badge ? (
                         <span
                           className={`rounded-full px-1.5 py-0.5 text-[10px] font-mono ${
-                            isActive ? 'bg-white/20 text-white' : 'bg-accent-bg text-accent-dark'
+                            isActive ? 'bg-white/30 text-white' : 'bg-accent-bg text-accent-dark'
                           }`}
                         >
                           {item.badge}
@@ -116,7 +116,7 @@ export default function Sidebar({
       {collapsed && onToggleCollapse && (
         <button
           onClick={onToggleCollapse}
-          className='absolute -right-3 bottom-8 z-10 flex h-6 w-6 items-center justify-center rounded-full border border-white/60 bg-white/60 text-ink-faint shadow-soft transition-colors hover:bg-white/80 hover:text-ink'
+          className='absolute -right-3 bottom-8 z-10 flex h-6 w-6 items-center justify-center rounded-full border border-ink-border bg-surface text-ink-faint shadow-soft transition-colors hover:bg-surface-2 hover:text-ink'
           title='展开目录'
         >
           <svg className='h-3.5 w-3.5' fill='none' viewBox='0 0 24 24' stroke='currentColor' strokeWidth={2}>
@@ -126,7 +126,7 @@ export default function Sidebar({
       )}
 
       {!collapsed && footer && (
-        <div className='border-t border-white/60 p-4 text-xs text-ink-faint'>
+        <div className='border-t border-ink-border p-4 text-xs text-ink-faint'>
           {footer}
         </div>
       )}

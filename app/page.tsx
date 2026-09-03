@@ -13,7 +13,6 @@ import Fitness from '@/components/modules/Fitness'
 import Schedule from '@/components/modules/Schedule'
 import Shopping from '@/components/modules/Shopping'
 import Media from '@/components/modules/Media'
-import SplashScreen from '@/components/SplashScreen'
 import AppearanceManager from '@/components/AppearanceManager'
 import Sidebar from '@/components/layout/Sidebar'
 import Header, { HeaderAction, SearchInput, IconButton, Avatar } from '@/components/layout/Header'
@@ -266,9 +265,6 @@ export default function Home() {
         backgroundAttachment: 'fixed',
       } : undefined}
     >
-      {/* 开屏动画 */}
-      <SplashScreen />
-
       {/* 桌面端侧边栏 */}
       <div className='hidden lg:block'>
         <Sidebar

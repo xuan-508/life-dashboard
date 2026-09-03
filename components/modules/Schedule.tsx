@@ -7,9 +7,9 @@ import MonthCalendar from '@/components/charts/MonthCalendar'
 import WeekCalendar from '@/components/charts/WeekCalendar'
 
 const STATUS_CONFIG: Record<ScheduleStatus, { label: string; bg: string; text: string; border: string }> = {
-  todo:  { label: '待办', bg: 'bg-white/50',  text: 'text-purple-600',  border: 'border-purple-200' },
-  doing: { label: '进行中', bg: 'bg-pink-100/80', text: 'text-pink-600', border: 'border-pink-300' },
-  done:  { label: '已完成', bg: 'bg-white/40', text: 'text-purple-300', border: 'border-purple-100' },
+  todo:  { label: '待办', bg: 'bg-surface-2',  text: 'text-purple-600',  border: 'border-purple-200' },
+  doing: { label: '进行中', bg: 'bg-pink-100', text: 'text-pink-600', border: 'border-pink-300' },
+  done:  { label: '已完成', bg: 'bg-surface-2', text: 'text-purple-300', border: 'border-purple-100' },
 }
 
 const STATUS_ORDER: ScheduleStatus[] = ['todo', 'doing', 'done']
@@ -233,7 +233,7 @@ export default function Schedule({ accounts = [], fitness = [] }: ScheduleProps)
       <div className="card">
         <div className="mb-3 flex items-center justify-between">
           <div className="label">日历视图</div>
-          <div className="flex gap-1 rounded-clean border border-white/60 bg-white/40 p-0.5 backdrop-blur-sm">
+          <div className="flex gap-1 rounded-clean border border-ink-border bg-surface p-0.5">
             <button
               onClick={() => setCalMode('month')}
               className={`rounded-clean px-2.5 py-1 text-xs font-medium transition-colors ${
@@ -274,7 +274,7 @@ export default function Schedule({ accounts = [], fitness = [] }: ScheduleProps)
         )}
 
         {/* 日历图例 */}
-        <div className="mt-3 flex flex-wrap items-center gap-x-4 gap-y-1 border-t border-white/60 pt-2 text-[11px] text-ink-faint">
+        <div className="mt-3 flex flex-wrap items-center gap-x-4 gap-y-1 border-t border-ink-border pt-2 text-[11px] text-ink-faint">
           <span className="flex items-center gap-1">
             <span className="inline-block h-2 w-2 rounded-full" style={{ backgroundColor: '#D946EF' }} /> 日程
           </span>

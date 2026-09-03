@@ -118,7 +118,7 @@ export default function Shopping() {
               className={`shrink-0 w-5 h-5 rounded border-2 flex items-center justify-center cursor-pointer transition-colors ${
                 item.bought
                   ? 'bg-accent border-accent'
-                  : 'bg-white/50 border-white/60 hover:border-accent'
+                  : 'bg-surface border-ink-border hover:border-accent'
               }`}
             >
               {item.bought && (
