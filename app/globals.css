@@ -12,14 +12,14 @@
     --accent-ink: 255 255 255;
     --accent-gradient-from: 192 132 252;
     --accent-gradient-to: 244 114 182;
-    --paper: 250 244 255;
-    --ink: 60 20 90;
-    --ink-soft: 110 75 135;
-    --ink-faint: 165 140 185;
-    --ink-border: 225 210 242;
+    --paper: 255 255 255;
+    --ink: 15 23 42;
+    --ink-soft: 100 116 139;
+    --ink-faint: 148 163 184;
+    --ink-border: 226 232 240;
     --surface: 255 255 255;
-    --surface-2: 247 242 250;
-    --shadow-color: 120 50 220;
+    --surface-2: 248 250 252;
+    --shadow-color: 0 0 0;
   }
 
   html {
@@ -27,9 +27,8 @@
     -moz-osx-font-smoothing: grayscale;
   }
   body {
-    background: linear-gradient(135deg, #F5E3FF 0%, #FAE8F3 50%, #E8EDFF 100%);
-    background-attachment: fixed;
-    color: #3C145A;
+    background: #ffffff;
+    color: #0f172a;
     font-feature-settings: "tnum";
   }
   * {
@@ -91,11 +90,11 @@
   background: transparent;
 }
 ::-webkit-scrollbar-thumb {
-  background: #E9D5FF;
+  background: #cbd5e1;
   border-radius: 3px;
 }
 ::-webkit-scrollbar-thumb:hover {
-  background: #C084FC;
+  background: #94a3b8;
 }
 
 /* hide number input spinners */

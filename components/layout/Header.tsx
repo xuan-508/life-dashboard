@@ -85,7 +85,7 @@ export function HeaderAction({
       title={title}
       className={`flex items-center gap-1.5 rounded-lg px-3 py-1.5 text-xs font-medium transition-all ${
         primary
-          ? 'bg-gradient-to-r from-purple-400 to-pink-400 text-white shadow-soft hover:shadow-md hover:brightness-105'
+          ? 'bg-accent text-white shadow-soft hover:shadow-md hover:brightness-105'
           : 'border border-ink-border bg-surface-2 text-ink-soft shadow-sm hover:border-accent/30 hover:bg-accent-bg hover:text-accent'
       }`}
     >
